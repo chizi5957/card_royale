@@ -1,0 +1,4822 @@
+/* Multiplayer Card Game */
+
+position: relative;
+width: 1227px;
+height: 997px;
+
+background: #FFFFFF;
+border-radius: 0px;
+
+
+/* div */
+
+position: absolute;
+width: 1227px;
+height: 997px;
+left: 0px;
+top: 0px;
+
+background: linear-gradient(180deg, #050313 0%, #18164C 50.95%, #25276B 100%), #0A233D;
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 378px;
+height: 48px;
+left: 424.5px;
+top: 751.5px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+
+/* Container */
+
+position: absolute;
+width: 373px;
+height: 43px;
+left: 2.5px;
+top: 2.5px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 373px;
+height: 43px;
+left: 0px;
+top: 0px;
+
+background: #1057DA;
+border-radius: 5px;
+
+
+/* Container */
+
+position: absolute;
+width: 373px;
+height: 40px;
+left: 0px;
+top: 0px;
+
+background: linear-gradient(180deg, #23AAF6 2.5%, #1989F9 100%);
+border-radius: 5px;
+
+
+/* Container */
+
+position: absolute;
+width: 367px;
+height: 34px;
+left: 3px;
+top: 3px;
+
+background: linear-gradient(180deg, #26B3F7 26.5%, #23AAF8 39.5%, #1C95F9 64%, #1983FA 97%);
+filter: blur(0.25px);
+border-radius: 2px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 375px;
+height: 45px;
+left: 1.5px;
+top: 1.5px;
+
+border-radius: 0px;
+
+
+/* HOW TO PLAY? */
+
+width: 107px;
+height: 19px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 16px;
+line-height: 19px;
+/* identical to box height, or 119% */
+text-align: center;
+letter-spacing: -0.32px;
+text-transform: uppercase;
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* motion.div */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 448px;
+height: 514px;
+left: 389.5px;
+top: 197.5px;
+
+background: linear-gradient(180deg, #352A91 0%, #434CAF 33.24%, #4751BC 62.52%, #352A91 90.34%), #5C51C7;
+border: 3px solid #6B60D6;
+box-shadow: 0px 6px 0px rgba(0, 0, 0, 0.3);
+border-radius: 40px;
+
+
+/* div */
+
+position: absolute;
+width: 378px;
+height: 148px;
+left: 35px;
+top: 121px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+position: absolute;
+width: 378px;
+height: 64px;
+left: 0px;
+top: 84px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+
+width: 262px;
+height: 64px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px 16px;
+
+width: 262px;
+height: 64px;
+
+background: #003343;
+border: 2px solid rgba(0, 89, 117, 0.5);
+border-radius: 7px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* input */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+
+width: 226px;
+height: 19px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* ENTER CODE */
+
+width: 92px;
+height: 19px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 16px;
+line-height: 19px;
+/* identical to box height */
+text-align: center;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.3);
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Container */
+
+width: 100px;
+height: 64px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 100px;
+height: 64px;
+left: 0px;
+top: 0px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+
+/* Container */
+
+position: absolute;
+width: 98px;
+height: 62px;
+left: 2.5px;
+top: 2.5px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 96px;
+height: 60px;
+left: 1px;
+top: 1px;
+
+background: #1057DA;
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 96px;
+height: 57px;
+left: 1px;
+top: 1px;
+
+background: linear-gradient(180deg, #23AAF6 2.5%, #1989F9 100%);
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 90px;
+height: 51px;
+left: 4px;
+top: 4px;
+
+background: linear-gradient(180deg, #26B3F7 26.5%, #23AAF8 39.5%, #1C95F9 64%, #1983FA 97%);
+filter: blur(0.25px);
+border-radius: 3px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 83px;
+height: 26px;
+left: 8.5px;
+top: 19px;
+
+border-radius: 0px;
+
+
+/* Join */
+
+width: 36px;
+height: 19px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 16px;
+line-height: 19px;
+/* identical to box height, or 119% */
+text-align: center;
+letter-spacing: -0.32px;
+text-transform: uppercase;
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Container */
+
+position: absolute;
+width: 97px;
+height: 61px;
+left: 1.5px;
+top: 1.5px;
+
+background: #000000;
+opacity: 0.6;
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 378px;
+height: 64px;
+left: 0px;
+top: 0px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+
+/* Container */
+
+position: absolute;
+width: 376px;
+height: 62px;
+left: 2.5px;
+top: 2.5px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 374px;
+height: 60px;
+left: 1px;
+top: 1px;
+
+background: #FFA402;
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 374px;
+height: 57px;
+left: 1px;
+top: 1px;
+
+background: linear-gradient(180deg, #FFDD07 2.5%, #F8CB1F 100%);
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 368px;
+height: 51px;
+left: 4px;
+top: 4px;
+
+background: linear-gradient(180deg, #FEE20E 26.5%, #FCD113 36%, #FCD113 64%, #F6BA06 97%);
+filter: blur(0.25px);
+border-radius: 3px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 355px;
+height: 24px;
+left: 11.5px;
+top: 20px;
+
+border-radius: 0px;
+
+
+/* Create New Game */
+
+width: 174px;
+height: 24px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 20px;
+line-height: 24px;
+/* identical to box height, or 120% */
+text-align: center;
+letter-spacing: -0.4px;
+text-transform: uppercase;
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+position: absolute;
+width: 378px;
+height: 64px;
+left: 35px;
+top: 353px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 378px;
+height: 64px;
+left: 0px;
+top: 0px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+
+/* Container */
+
+position: absolute;
+width: 376px;
+height: 62px;
+left: 2.5px;
+top: 2.5px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 374px;
+height: 60px;
+left: 1px;
+top: 1px;
+
+background: #415E6F;
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 374px;
+height: 57px;
+left: 1px;
+top: 1px;
+
+background: linear-gradient(180deg, #6998B3 2.5%, #547585 100%);
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 368px;
+height: 51px;
+left: 4px;
+top: 4px;
+
+background: linear-gradient(180deg, #70A1BE 26.5%, #6995AB 36%, #56788A 64%, #56788A 97%);
+filter: blur(0.25px);
+border-radius: 3px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 114px;
+height: 24px;
+left: 132px;
+top: 20px;
+
+border-radius: 0px;
+
+
+/* Play vs Bot */
+
+width: 114px;
+height: 24px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 20px;
+line-height: 24px;
+/* identical to box height, or 120% */
+text-align: center;
+letter-spacing: -0.4px;
+text-transform: uppercase;
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+position: absolute;
+width: 449px;
+height: 85px;
+left: -0.5px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 449px;
+height: 71.01px;
+left: 0px;
+top: 0px;
+
+background: #342E72;
+border: 1px solid #000000;
+box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5), 0px 4px 12px rgba(0, 0, 0, 0.45);
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 449px;
+height: 65.01px;
+left: 0px;
+top: 1.99px;
+
+background: linear-gradient(90deg, #635DC2 0%, #9090FB 42%, #635DC2 100%);
+border: 1px solid #D2BFFF;
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 449px;
+height: 27.02px;
+left: 0px;
+top: 1.99px;
+
+background: radial-gradient(163.49% 190.74% at 50% 190.74%, rgba(255, 255, 255, 0.08) 34%, rgba(255, 255, 255, 0.3) 100%);
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: -8.63281px -31.2266px 1px;
+
+position: absolute;
+width: 449px;
+height: 65.01px;
+left: 0px;
+top: 1.99px;
+
+background: #6C3499;
+border: 1px solid #8541BD;
+border-radius: 0px;
+
+
+/* Container */
+
+width: 511.45px;
+height: 31.13px;
+
+background: #D9D9D9;
+opacity: 0.3;
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 429px;
+height: 40px;
+left: 10px;
+top: 11px;
+
+border-radius: 0px;
+
+
+/* THE BIDDING WAR */
+
+width: 248px;
+height: 36px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 30px;
+line-height: 36px;
+/* identical to box height, or 120% */
+text-align: center;
+letter-spacing: -0.6px;
+text-transform: uppercase;
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+position: absolute;
+width: 378px;
+height: 12px;
+left: 35px;
+top: 305px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 40px;
+
+position: absolute;
+width: 378px;
+height: 18px;
+left: -2px;
+top: 5.5px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+width: 169px;
+height: 18px;
+
+opacity: 0.2;
+border-top: 2px solid rgba(255, 255, 255, 0.7);
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+width: 169px;
+height: 18px;
+
+opacity: 0.2;
+border-top: 2px solid rgba(255, 255, 255, 0.7);
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* Container */
+
+position: absolute;
+width: 378px;
+height: 18px;
+left: -2px;
+top: 5.5px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 13px;
+height: 18px;
+left: 180.69px;
+top: -2.5px;
+
+border-radius: 0px;
+
+
+/* Or */
+
+position: absolute;
+width: 13px;
+height: 18px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: rgba(255, 255, 255, 0.7);
+
+
+
+/* div */
+
+position: absolute;
+width: 196.98px;
+height: 15px;
+left: 125.51px;
+top: 467.5px;
+
+border-radius: 0px;
+
+
+/* Games expires after 30 minutes of inactivity */
+
+position: absolute;
+width: 197px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+text-align: center;
+
+color: rgba(255, 255, 255, 0.7);
+
+
+
+/* div */
+
+position: absolute;
+width: 1227px;
+height: 997px;
+left: 0px;
+top: 0px;
+
+background: rgba(5, 3, 19, 0.8);
+border-radius: 0px;
+
+
+/* motion.div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 3px;
+
+position: absolute;
+width: 480px;
+height: 897.3px;
+left: 373.5px;
+top: 49.85px;
+
+background: linear-gradient(180deg, #352A91 0%, #434CAF 33.24%, #4751BC 62.52%, #352A91 90.34%), #5C51C7;
+border: 3px solid #6B60D6;
+box-shadow: 0px 6px 0px rgba(0, 0, 0, 0.3), 0px 20px 60px rgba(0, 0, 0, 0.6);
+border-radius: 24px;
+
+
+/* div */
+
+width: 474px;
+height: 1626px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 59 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 24px;
+
+position: absolute;
+width: 426px;
+height: 1410px;
+left: 24px;
+top: 32.5px;
+
+
+
+/* How to Play */
+
+width: 185px;
+height: 36px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 30px;
+line-height: 36px;
+/* identical to box height */
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: -0.02em;
+text-transform: uppercase;
+font-feature-settings: 'pnum' on, 'lnum' on;
+
+color: #FFFFFF;
+
+border: 1.016px solid #3B3B3B;
+text-shadow: 0px 1.778px 2.54px rgba(0, 0, 0, 0.8), 0px 1px 0px #000000, 0px 1px 0px #000000;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px 0px 16px;
+gap: 16px;
+
+width: 426px;
+height: 1278px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* motion.div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+padding: 16px;
+gap: 24px;
+
+width: 426px;
+height: 218.5px;
+
+background: linear-gradient(180deg, #18164C 0%, #0A233D 100%), #25276B;
+border: 1px solid #6B60D6;
+border-radius: 14px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 48 */
+
+width: 392px;
+height: 38.5px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 28px;
+height: 28px;
+left: 0px;
+top: 5.25px;
+
+background: rgba(255, 164, 2, 0.12);
+border: 1.5px solid rgba(255, 164, 2, 0.5);
+border-radius: 1.67772e+07px;
+
+
+/* 1 */
+
+width: 7px;
+height: 18px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: #FFA402;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+position: absolute;
+width: 348px;
+height: 38.5px;
+left: 44px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* Each player gets 13 cards of their suit — ♠ Spades */
+
+position: absolute;
+width: 334px;
+height: 39px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 19px;
+/* or 138% */
+
+color: rgba(255, 255, 255, 0.9);
+
+
+
+/* Frame 47 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 12px;
+
+width: 392px;
+height: 122px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 39.5625px 0px 39.5469px;
+gap: 79.1px;
+
+width: 392px;
+height: 95px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Container */
+
+margin: 0 auto;
+width: 64.74px;
+height: 95px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Container */
+
+position: absolute;
+width: 64.74px;
+height: 15px;
+left: 0px;
+top: 80px;
+
+border-radius: 0px;
+
+
+/* P1 ♠ Spades */
+
+position: absolute;
+width: 65px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+letter-spacing: 0.25px;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+
+/* Container */
+
+position: absolute;
+width: 52px;
+height: 72px;
+left: 6.37px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 54.84px;
+height: 72.64px;
+left: -7.42px;
+top: 4.69px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 21.98px;
+height: 21.98px;
+left: 16.43px;
+top: 22.41px;
+
+border-radius: 0px;
+
+
+/* ♠ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: -0.21px;
+top: -2.08px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 7.47px;
+height: 10.62px;
+left: 5.52px;
+top: 2.44px;
+
+border-radius: 0px;
+
+
+/* A */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: -0.33px;
+top: -0.65px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 43.33px;
+top: 50.17px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* A */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: -8.35px;
+top: -9.96px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+transform: rotate(180deg);
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 50.34px;
+height: 69.63px;
+left: -1.17px;
+top: 0.86px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20.69px;
+height: 20.69px;
+left: 14.83px;
+top: 23.5px;
+
+border-radius: 0px;
+
+
+/* ♠ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: -0.07px;
+top: -0.7px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6.15px;
+height: 10.2px;
+left: 5px;
+top: 2.83px;
+
+border-radius: 0px;
+
+
+/* 7 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 0.06px;
+top: -0.21px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 39.34px;
+top: 53.46px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* 7 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: -6.28px;
+top: -9.99px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+transform: rotate(180deg);
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 50.34px;
+height: 69.63px;
+left: 5.2px;
+top: 1.18px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20.69px;
+height: 20.69px;
+left: 13.15px;
+top: 24.47px;
+
+border-radius: 0px;
+
+
+/* ♠ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: -0.75px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6.66px;
+height: 10.21px;
+left: 5.05px;
+top: 3.18px;
+
+border-radius: 0px;
+
+
+/* K */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: -0.54px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 34.55px;
+top: 56.46px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* K */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: 2.81px;
+top: -3.21px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+margin: 0 auto;
+width: 32.2px;
+height: 28px;
+
+background: rgba(255, 164, 2, 0.12);
+border: 1px solid rgba(255, 164, 2, 0.5);
+border-radius: 1.67772e+07px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* VS */
+
+position: absolute;
+width: 15px;
+height: 18px;
+left: 9px;
+top: 5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: #FFA402;
+
+
+
+/* Container */
+
+margin: 0 auto;
+width: 57.74px;
+height: 95px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Container */
+
+position: absolute;
+width: 57.74px;
+height: 15px;
+left: 0px;
+top: 80px;
+
+border-radius: 0px;
+
+
+/* P2 ♣ Clubs */
+
+position: absolute;
+width: 58px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+letter-spacing: 0.25px;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+
+/* Container */
+
+position: absolute;
+width: 52px;
+height: 72px;
+left: 2.87px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 54.84px;
+height: 72.64px;
+left: -7.42px;
+top: 4.69px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 21.98px;
+height: 21.98px;
+left: 16.43px;
+top: 22.41px;
+
+border-radius: 0px;
+
+
+/* ♣ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: -0.21px;
+top: -2.08px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 7.47px;
+height: 10.62px;
+left: 5.52px;
+top: 2.44px;
+
+border-radius: 0px;
+
+
+/* A */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: -0.33px;
+top: -0.65px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 43.33px;
+top: 50.17px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* A */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: -8.35px;
+top: -9.96px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+transform: rotate(180deg);
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 50.34px;
+height: 69.63px;
+left: -1.17px;
+top: 0.86px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20.69px;
+height: 20.69px;
+left: 14.83px;
+top: 23.5px;
+
+border-radius: 0px;
+
+
+/* ♣ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: -0.07px;
+top: -0.7px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6.15px;
+height: 10.2px;
+left: 5px;
+top: 2.83px;
+
+border-radius: 0px;
+
+
+/* 7 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 0.06px;
+top: -0.21px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 39.34px;
+top: 53.46px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* 7 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: -6.28px;
+top: -9.99px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+transform: rotate(180deg);
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 50.34px;
+height: 69.63px;
+left: 5.2px;
+top: 1.18px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20.69px;
+height: 20.69px;
+left: 13.15px;
+top: 24.47px;
+
+border-radius: 0px;
+
+
+/* ♣ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: -0.75px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6.66px;
+height: 10.21px;
+left: 5.05px;
+top: 3.18px;
+
+border-radius: 0px;
+
+
+/* K */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: -0.54px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 34.55px;
+top: 56.46px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* K */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: 2.81px;
+top: -4.21px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 10px;
+
+width: 392px;
+height: 15px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Your Hand vs Theirs */
+
+width: 114px;
+height: 15px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+letter-spacing: 0.5px;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.5);
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame 49 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+width: 426px;
+height: 1027.5px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* motion.div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+padding: 16px;
+gap: 16px;
+
+width: 426px;
+height: 227.5px;
+
+background: linear-gradient(180deg, #18164C 0%, #0A233D 100%), #25276B;
+border: 1px solid #6B60D6;
+border-radius: 14px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 51 */
+
+width: 392px;
+height: 38.5px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 28px;
+height: 28px;
+left: 0px;
+top: 5.25px;
+
+background: rgba(255, 164, 2, 0.12);
+border: 1.5px solid rgba(255, 164, 2, 0.5);
+border-radius: 1.67772e+07px;
+
+
+/* 2 */
+
+width: 7px;
+height: 18px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: #FFA402;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+position: absolute;
+width: 348px;
+height: 38.5px;
+left: 44px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* Each round a red prize card is revealed. Both play */
+
+position: absolute;
+width: 329px;
+height: 39px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 19px;
+/* or 138% */
+
+color: rgba(255, 255, 255, 0.9);
+
+
+
+/* Frame 50 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 12px;
+
+width: 393px;
+height: 139px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 10px;
+
+width: 393px;
+height: 15px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Round 1 · Bid in Secret */
+
+width: 125px;
+height: 15px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+letter-spacing: 0.5px;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.5);
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Container */
+
+width: 393px;
+height: 112px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* span */
+
+position: absolute;
+width: 35.87px;
+height: 15px;
+left: 114.06px;
+top: 83px;
+
+border-radius: 0px;
+
+
+/* P1 bids */
+
+position: absolute;
+width: 36px;
+height: 15px;
+left: 0px;
+top: 3.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+
+/* span */
+
+position: absolute;
+width: 45.23px;
+height: 25px;
+left: 173.38px;
+top: 87px;
+
+border-radius: 0px;
+
+
+/* Prize Card */
+
+position: absolute;
+width: 46px;
+height: 13px;
+left: 0px;
+top: -1px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 12px;
+/* identical to box height, or 125% */
+text-align: center;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+
+/* 12 pts */
+
+position: absolute;
+width: 29px;
+height: 13px;
+left: 8.58px;
+top: 11.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 12px;
+/* identical to box height, or 125% */
+text-align: center;
+
+color: #FFA402;
+
+
+
+/* span */
+
+position: absolute;
+width: 35.87px;
+height: 15px;
+left: 242.06px;
+top: 87px;
+
+border-radius: 0px;
+
+
+/* P2 bids */
+
+position: absolute;
+width: 36px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 48px;
+height: 68px;
+left: 108px;
+top: 6px;
+
+background: linear-gradient(180deg, #1057DA 0%, #25276B 100%);
+border: 1px solid #23AAF6;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+width: 9.91px;
+height: 30px;
+
+opacity: 0.5;
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* ? */
+
+position: absolute;
+width: 10px;
+height: 30px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 20px;
+line-height: 30px;
+/* identical to box height, or 150% */
+
+color: #FFFFFF;
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 56px;
+height: 78px;
+left: 168px;
+top: 1px;
+
+background: #FFFFFF;
+border: 2px solid #FFA402;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 18px;
+top: 29px;
+
+border-radius: 0px;
+
+
+/* ♥ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* span */
+
+position: absolute;
+width: 6.85px;
+height: 10px;
+left: 6px;
+top: 6px;
+
+border-radius: 0px;
+
+
+/* Q */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* span */
+
+position: absolute;
+width: 6.85px;
+height: 10px;
+left: 43px;
+top: 62px;
+
+border-radius: 0px;
+
+
+/* Q */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 48px;
+height: 68px;
+left: 236px;
+top: 6px;
+
+background: linear-gradient(180deg, #1057DA 0%, #25276B 100%);
+border: 1px solid #23AAF6;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+width: 9.91px;
+height: 30px;
+
+opacity: 0.5;
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* ? */
+
+position: absolute;
+width: 10px;
+height: 30px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 20px;
+line-height: 30px;
+/* identical to box height, or 150% */
+
+color: #FFFFFF;
+
+
+
+/* motion.div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+padding: 16px;
+gap: 16px;
+
+width: 426px;
+height: 323.5px;
+
+background: linear-gradient(180deg, #18164C 0%, #0A233D 100%), #25276B;
+border: 1px solid #6B60D6;
+border-radius: 14px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 53 */
+
+width: 392px;
+height: 38.5px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 28px;
+height: 28px;
+left: 0px;
+top: 5.25px;
+
+background: rgba(255, 164, 2, 0.12);
+border: 1.5px solid rgba(255, 164, 2, 0.5);
+border-radius: 1.67772e+07px;
+
+
+/* 3 */
+
+width: 7px;
+height: 18px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: #FFA402;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+position: absolute;
+width: 348px;
+height: 38.5px;
+left: 44px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* Higher card wins the prize. Remember: Ace = 1 (low */
+
+position: absolute;
+width: 294px;
+height: 39px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 14px;
+line-height: 19px;
+/* or 138% */
+
+color: #FFA402;
+
+
+
+/* Frame 52 */
+
+width: 393px;
+height: 235px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Container */
+
+position: absolute;
+width: 392px;
+height: 15px;
+left: 0.5px;
+top: 0.35px;
+
+border-radius: 0px;
+
+
+/* Card Ranking */
+
+position: absolute;
+width: 76px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+letter-spacing: 0.5px;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.5);
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px 12.0078px 0px 12px;
+gap: 109.2px;
+
+position: absolute;
+width: 392px;
+height: 58px;
+left: 0.5px;
+top: 27.35px;
+
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 7px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+width: 62.52px;
+height: 32px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 24px;
+height: 32px;
+
+background: #FFFFFF;
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* A */
+
+width: 8px;
+height: 15px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 12px;
+line-height: 15px;
+/* identical to box height, or 125% */
+
+color: #000000;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* span */
+
+width: 30.52px;
+height: 16.5px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* Ace=1 */
+
+position: absolute;
+width: 31px;
+height: 17px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 11px;
+line-height: 16px;
+/* identical to box height, or 150% */
+
+color: rgba(255, 255, 255, 0.7);
+
+
+
+/* span */
+
+width: 11.84px;
+height: 24px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* → */
+
+position: absolute;
+width: 12px;
+height: 24px;
+left: 0px;
+top: 0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* identical to box height, or 150% */
+
+color: rgba(255, 255, 255, 0.4);
+
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+width: 73.22px;
+height: 32px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 24px;
+height: 32px;
+
+background: #FFFFFF;
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* K */
+
+width: 8px;
+height: 12px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 12px;
+line-height: 12px;
+/* identical to box height, or 100% */
+
+color: #000000;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* span */
+
+width: 41.22px;
+height: 16.5px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* King=13 */
+
+position: absolute;
+width: 42px;
+height: 17px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 11px;
+line-height: 16px;
+/* identical to box height, or 150% */
+
+color: rgba(255, 255, 255, 0.7);
+
+
+
+/* Container */
+
+position: absolute;
+width: 392px;
+height: 15px;
+left: 0.5px;
+top: 97.35px;
+
+border-radius: 0px;
+
+
+/* Example Round */
+
+position: absolute;
+width: 86px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+letter-spacing: 0.5px;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.5);
+
+
+
+/* Container */
+
+position: absolute;
+width: 392.29px;
+height: 114px;
+left: 0.5px;
+top: 120.35px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 42.73px;
+height: 21px;
+left: 94.63px;
+top: 82.5px;
+
+background: rgba(255, 70, 70, 0.2);
+border: 1px solid rgba(255, 70, 70, 0.3);
+border-radius: 1.67772e+07px;
+
+
+/* P1 · 7 */
+
+position: absolute;
+width: 25px;
+height: 15px;
+left: 9px;
+top: 2.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+
+color: #FF4646;
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 58.29px;
+height: 21px;
+left: 235px;
+top: 82.5px;
+
+background: rgba(79, 234, 79, 0.2);
+border: 1px solid rgba(79, 234, 79, 0.3);
+border-radius: 1.67772e+07px;
+
+
+/* P2 · 11 ✓ */
+
+position: absolute;
+width: 41px;
+height: 15px;
+left: 9px;
+top: 2.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+
+color: #4FEA4F;
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 48px;
+height: 68px;
+left: 94px;
+top: 5px;
+
+background: #FFFFFF;
+opacity: 0.5;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 14px;
+top: 24px;
+
+border-radius: 0px;
+
+
+/* ♠ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 5.8px;
+height: 10px;
+left: 5px;
+top: 3px;
+
+border-radius: 0px;
+
+
+/* 7 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 31.2px;
+top: 45px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* 7 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 3px;
+top: 5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* Frame 58 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+position: absolute;
+width: 56px;
+height: 99px;
+left: 162px;
+top: 0px;
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+width: 56px;
+height: 78px;
+
+background: #FFFFFF;
+border: 2px solid #FFA402;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* span */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 18px;
+top: 29px;
+
+border-radius: 0px;
+
+
+/* ♦ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* span */
+
+position: absolute;
+width: 4.75px;
+height: 10px;
+left: 6px;
+top: 4px;
+
+border-radius: 0px;
+
+
+/* J */
+
+position: absolute;
+width: 5px;
+height: 10px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* span */
+
+position: absolute;
+width: 5px;
+height: 10px;
+left: 40.25px;
+top: 54px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* J */
+
+position: absolute;
+width: 5px;
+height: 10px;
+left: 0px;
+top: 5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* Frame 55 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 2px;
+
+width: 46px;
+height: 13px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Prize Card */
+
+width: 46px;
+height: 13px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 12px;
+/* identical to box height, or 125% */
+text-align: center;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 48px;
+height: 68px;
+left: 240px;
+top: 5px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 14px;
+top: 24px;
+
+border-radius: 0px;
+
+
+/* ♣ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 4.75px;
+height: 10px;
+left: 5px;
+top: 3px;
+
+border-radius: 0px;
+
+
+/* J */
+
+position: absolute;
+width: 5px;
+height: 10px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 5px;
+height: 10px;
+left: 33.25px;
+top: 45px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* J */
+
+position: absolute;
+width: 5px;
+height: 10px;
+left: 0px;
+top: 7px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* motion.div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+padding: 16px;
+gap: 16px;
+
+width: 426px;
+height: 242.5px;
+
+background: linear-gradient(180deg, #18164C 0%, #0A233D 100%), #25276B;
+border: 1px solid #6B60D6;
+border-radius: 14px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 57 */
+
+width: 392px;
+height: 38.5px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 28px;
+height: 28px;
+left: 0px;
+top: 5.25px;
+
+background: rgba(255, 164, 2, 0.12);
+border: 1.5px solid rgba(255, 164, 2, 0.5);
+border-radius: 1.67772e+07px;
+
+
+/* 4 */
+
+width: 7px;
+height: 18px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: #FFA402;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* div */
+
+position: absolute;
+width: 348px;
+height: 38.5px;
+left: 44px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* On a tie, the prize carries to the next round — th */
+
+position: absolute;
+width: 309px;
+height: 39px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 19px;
+/* or 138% */
+
+color: rgba(255, 255, 255, 0.9);
+
+
+
+/* Frame 56 */
+
+width: 393px;
+height: 154px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Container */
+
+position: absolute;
+width: 392px;
+height: 15px;
+left: 0.5px;
+top: 0.85px;
+
+border-radius: 0px;
+
+
+/* Tie → Jackpot Round */
+
+position: absolute;
+width: 112px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+letter-spacing: 0.5px;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.5);
+
+
+
+/* Container */
+
+position: absolute;
+width: 362px;
+height: 133px;
+left: 0px;
+top: 21px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 209px;
+height: 87px;
+left: 1px;
+top: 17px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 48px;
+height: 87px;
+left: 0px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* span */
+
+position: absolute;
+width: 11.71px;
+height: 15px;
+left: 18.14px;
+top: 72px;
+
+border-radius: 0px;
+
+
+/* P1 */
+
+position: absolute;
+width: 12px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+
+color: rgba(255, 255, 255, 0.5);
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 48px;
+height: 68px;
+left: 0px;
+top: 0px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 14px;
+top: 24px;
+
+border-radius: 0px;
+
+
+/* ♠ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 5.8px;
+height: 10px;
+left: 6px;
+top: 6px;
+
+border-radius: 0px;
+
+
+/* 9 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 31.2px;
+top: 45px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* 9 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 5px;
+top: 7px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 43.08px;
+height: 60px;
+left: 73.46px;
+top: 4px;
+
+background: #FFFFFF;
+border: 1.53846px solid #FFA402;
+box-shadow: 0px 7.69231px 11.5385px -2.30769px rgba(0, 0, 0, 0.1), 0px 3.07692px 4.61538px -3.07692px rgba(0, 0, 0, 0.1);
+border-radius: 4.61538px;
+
+
+/* span */
+
+position: absolute;
+width: 15.38px;
+height: 15.38px;
+left: 13.85px;
+top: 22.31px;
+
+border-radius: 0px;
+
+
+/* ♦ */
+
+position: absolute;
+width: 16px;
+height: 16px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 15.3846px;
+line-height: 15px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* span */
+
+position: absolute;
+width: 3.65px;
+height: 7.69px;
+left: 4.62px;
+top: 3.08px;
+
+border-radius: 0px;
+
+
+/* 5 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 1.51px;
+top: 2.29px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 9px;
+line-height: 10px;
+/* identical to box height, or 111% */
+
+color: #DC2626;
+
+
+
+/* 5 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 30.96px;
+top: 44.54px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 9px;
+line-height: 10px;
+/* identical to box height, or 111% */
+
+color: #DC2626;
+
+
+
+/* Prize Card */
+
+position: absolute;
+width: 46px;
+height: 13px;
+left: 72px;
+top: 72px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 12px;
+/* identical to box height, or 125% */
+text-align: center;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 35.21px;
+height: 21px;
+left: 76px;
+top: 95px;
+
+background: rgba(255, 164, 2, 0.15);
+border: 1px solid rgba(255, 164, 2, 0.35);
+border-radius: 1.67772e+07px;
+
+
+/* TIE! */
+
+position: absolute;
+width: 18px;
+height: 15px;
+left: 9px;
+top: 2.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+
+color: #FFA402;
+
+
+
+/* Container */
+
+position: absolute;
+width: 49px;
+height: 87px;
+left: 140.21px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* span */
+
+position: absolute;
+width: 11.71px;
+height: 15px;
+left: 18.77px;
+top: 72px;
+
+border-radius: 0px;
+
+
+/* P2 */
+
+position: absolute;
+width: 12px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+
+color: rgba(255, 255, 255, 0.5);
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 48px;
+height: 68px;
+left: 0.63px;
+top: 0px;
+
+background: #FFFFFF;
+border: 1px solid #DDDDDD;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 14px;
+top: 24px;
+
+border-radius: 0px;
+
+
+/* ♣ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* span */
+
+position: absolute;
+width: 5.8px;
+height: 10px;
+left: 5px;
+top: 3px;
+
+border-radius: 0px;
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 31.2px;
+top: 45px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* 9 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 5px;
+top: 7px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* 9 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 5.79px;
+top: 6px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #1E293B;
+
+
+
+/* Container */
+
+position: absolute;
+width: 206px;
+height: 100px;
+left: 143.5px;
+top: 0.85px;
+
+border-radius: 0px;
+
+
+/* span */
+
+position: absolute;
+width: 111.3px;
+height: 18px;
+left: 0.41px;
+top: 44.85px;
+
+border-radius: 0px;
+
+
+/* span */
+
+position: absolute;
+width: 8.88px;
+height: 18px;
+left: 119.71px;
+top: 44.85px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+position: absolute;
+width: 78px;
+height: 100px;
+left: 128px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 56px;
+height: 78px;
+left: 13.67px;
+top: 0.14px;
+
+background: #FFFFFF;
+border: 2px solid #FFA402;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+transform: rotate(6deg);
+
+
+/* span */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 20.93px;
+top: 30.72px;
+
+border-radius: 0px;
+transform: rotate(6deg);
+
+
+/* ♥ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+transform: rotate(6deg);
+
+
+/* span */
+
+position: absolute;
+width: 5.8px;
+height: 10px;
+left: 12.66px;
+top: 4.61px;
+
+border-radius: 0px;
+transform: rotate(6deg);
+
+
+/* 5 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+transform: rotate(6deg);
+
+
+/* span */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 39.45px;
+top: 57.7px;
+
+border-radius: 0px;
+transform: rotate(-174deg);
+
+
+/* 5 */
+
+position: absolute;
+width: 6px;
+height: 10px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+transform: rotate(-174deg);
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 63.85px;
+height: 83.43px;
+left: 0.67px;
+top: 15.99px;
+
+background: #FFFFFF;
+border: 2px solid #FFA402;
+box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1);
+border-radius: 6px;
+
+
+/* span */
+
+position: absolute;
+width: 21.98px;
+height: 21.98px;
+left: 20.93px;
+top: 26.96px;
+
+border-radius: 0px;
+
+
+/* ♦ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: calc(50% - 20px/2 - 0.09px);
+top: calc(50% - 20px/2 + 0.21px);
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* span */
+
+position: absolute;
+width: 7.86px;
+height: 10.66px;
+left: 6.31px;
+top: 6.36px;
+
+border-radius: 0px;
+
+
+/* Q */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: -0.03px;
+top: -0.72px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* span */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: 50.54px;
+top: 58.36px;
+
+border-radius: 0px;
+transform: rotate(180deg);
+
+
+/* span */
+
+position: absolute;
+width: 7.86px;
+height: 10.66px;
+left: -1.04px;
+top: 8.07px;
+
+border-radius: 0px;
+
+
+/* Q */
+
+position: absolute;
+width: 7px;
+height: 10px;
+left: -0.03px;
+top: -0.72px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 10px;
+/* identical to box height, or 100% */
+
+color: #DC2626;
+
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px 8px;
+gap: 10px;
+
+position: absolute;
+width: 49px;
+height: 15px;
+left: 34.99px;
+top: 77.85px;
+
+background: #FFA402;
+border-radius: 4px;
+
+
+/* 2 cards */
+
+width: 33px;
+height: 15px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Prize carries forward */
+
+position: absolute;
+width: 112px;
+height: 18px;
+left: 250px;
+top: 115px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: rgba(255, 255, 255, 0.7);
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 17px 17px 1px;
+gap: 12px;
+
+width: 426px;
+height: 186px;
+
+background: linear-gradient(180deg, #18164C 0%, #0A233D 100%);
+border: 1px solid #6B60D6;
+border-radius: 14px;
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Container */
+
+width: 392px;
+height: 15px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* After 13 Rounds */
+
+position: absolute;
+width: 92px;
+height: 15px;
+left: 0px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+letter-spacing: 0.5px;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.5);
+
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: flex-start;
+padding: 0px;
+gap: 12px;
+
+width: 392px;
+height: 95px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+width: 190px;
+height: 95px;
+
+background: rgba(79, 234, 79, 0.1);
+border: 1px solid rgba(79, 234, 79, 0.2);
+border-radius: 7px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Container */
+
+position: absolute;
+width: 164px;
+height: 20px;
+left: 13px;
+top: 13px;
+
+border-radius: 0px;
+
+
+/* ♠ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 72px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+text-align: center;
+
+color: #FFFFFF;
+
+
+
+/* Container */
+
+position: absolute;
+width: 164px;
+height: 30px;
+left: 13px;
+top: 37px;
+
+border-radius: 0px;
+
+
+/* 87 */
+
+position: absolute;
+width: 24px;
+height: 30px;
+left: 70.4px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 20px;
+line-height: 30px;
+/* identical to box height, or 150% */
+text-align: center;
+
+color: #4FEA4F;
+
+
+
+/* Container */
+
+position: absolute;
+width: 164px;
+height: 15px;
+left: 13px;
+top: 67px;
+
+border-radius: 0px;
+
+
+/* Your Score */
+
+position: absolute;
+width: 57px;
+height: 15px;
+left: 53.76px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+text-align: center;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+width: 190px;
+height: 95px;
+
+background: rgba(255, 70, 70, 0.1);
+border: 1px solid rgba(255, 70, 70, 0.2);
+border-radius: 7px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* Container */
+
+position: absolute;
+width: 164px;
+height: 20px;
+left: 13px;
+top: 13px;
+
+border-radius: 0px;
+
+
+/* ♣ */
+
+position: absolute;
+width: 20px;
+height: 20px;
+left: 72px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 20px;
+/* identical to box height, or 100% */
+text-align: center;
+
+color: #FFFFFF;
+
+
+
+/* Container */
+
+position: absolute;
+width: 164px;
+height: 30px;
+left: 13px;
+top: 37px;
+
+border-radius: 0px;
+
+
+/* 64 */
+
+position: absolute;
+width: 24px;
+height: 30px;
+left: 70.4px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 20px;
+line-height: 30px;
+/* identical to box height, or 150% */
+text-align: center;
+
+color: #FF4646;
+
+
+
+/* Container */
+
+position: absolute;
+width: 164px;
+height: 15px;
+left: 13px;
+top: 67px;
+
+border-radius: 0px;
+
+
+/* Opponent */
+
+position: absolute;
+width: 50px;
+height: 15px;
+left: 57.12px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 15px;
+/* identical to box height, or 150% */
+text-align: center;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+
+/* Container */
+
+width: 392px;
+height: 18px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* ♠ Spades Wins! 🎉 */
+
+position: absolute;
+width: 113px;
+height: 18px;
+left: 139.77px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+text-align: center;
+letter-spacing: 0.3px;
+text-transform: uppercase;
+
+color: #4FEA4F;
+
+
+
+/* Container */
+
+width: 426px;
+height: 48px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Container */
+
+position: absolute;
+width: 426px;
+height: 48px;
+left: 0px;
+top: 0px;
+
+background: #FFA402;
+border-radius: 7px;
+
+
+/* Container */
+
+position: absolute;
+width: 424px;
+height: 43px;
+left: 1px;
+top: 1px;
+
+background: linear-gradient(180deg, #FFDD07 2.5%, #F8CB1F 100%);
+border-radius: 7px;
+
+
+/* Container */
+
+position: absolute;
+width: 418px;
+height: 37px;
+left: 4px;
+top: 4px;
+
+background: linear-gradient(180deg, #FEE20E 26.5%, #FCD113 36%, #FCD113 64%, #F6BA06 97%);
+filter: blur(0.25px);
+border-radius: 3px;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 426px;
+height: 48px;
+left: 0px;
+top: 0px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+position: absolute;
+width: 426px;
+height: 48px;
+left: 0px;
+top: 0px;
+
+border-radius: 0px;
+
+
+/* span */
+
+width: 44.44px;
+height: 21px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Got it! */
+
+position: absolute;
+width: 45px;
+height: 21px;
+left: 0px;
+top: 0px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 14px;
+line-height: 21px;
+/* identical to box height, or 150% */
+letter-spacing: -0.28px;
+text-transform: uppercase;
+
+color: #FFFFFF;
+

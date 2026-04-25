@@ -1,0 +1,200 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  
+  /* Typography variables */
+  --text-h1: 34px;
+  --text-h2: 28px;
+  --text-h3: 22px;
+  --text-h4: 18px;
+  --text-base: 16px;
+  --text-label: 11px;
+  --text-micro: 10px;
+  
+  /* The default background color for the application. */
+  --background: rgba(5, 3, 19, 1);
+  /* The default color for elements or text that appears on top of the background. */
+  --foreground: rgba(255, 255, 255, 1);
+  /* The background color for cards, modals, and other containers. */
+  --card: rgba(188, 207, 223, 1);
+  /* The default color for text or elements that appear on top of cards, modals and other background containers. */
+  --card-foreground: rgba(255, 255, 255, 1);
+  /* The background color for dropdowns and tooltips. */
+  --popover: rgba(0, 51, 67, 1);
+  /* The default color for text or elements that appear on top of dropdowns and tooltips. */
+  --popover-foreground: rgba(255, 255, 255, 1);
+  /* The primary color used for buttons, links, and other interactive elements. */
+  --primary: rgba(16, 87, 218, 1);
+  /* The default color for text or elements that appear on top of primary colored elements. */
+  --primary-foreground: rgba(255, 255, 255, 1);
+  /* The secondary color used for secondary(but NOT-DESTRUCTIVE) buttons and interactive elements. */
+  --secondary: rgba(108, 52, 153, 1);
+  /* The default color for text or elements that appear on top of secondary colored elements. */
+  --secondary-foreground: rgba(255, 255, 255, 1);
+  /* The muted color used for less prominent elements, such as disabled buttons or disabled text. */
+  --muted: rgba(46, 46, 46, 1);
+  /* The default color for text or elements that appear on top of muted colored elements. */
+  --muted-foreground: rgba(255, 255, 255, 0.7);
+  /* The accent color used for highlights, links, and other interactive elements. */
+  --accent: rgba(255, 164, 3, 1);
+  /* The default color for text or elements that appear on top of accent colored elements. */
+  --accent-foreground: rgba(255, 255, 255, 1);
+  /* The color used for background in destructive actions, such as delete buttons or error messages. */
+  --destructive: rgba(255, 70, 70, 1);
+  /* The default color for text or elements that appear on top of destructive colored elements. */
+  --destructive-foreground: rgba(255, 255, 255, 1);
+  /* The default border color for elements such as inputs, buttons, and other containers. */
+  --border: rgba(0, 0, 0, 1);
+  /* The default background color for input fields once the text has been filled. Should be either transparent or match the input-background. */
+  --input: rgba(0, 20, 27, 1);
+  /* The default background color for input fields, text areas, and other input elements. */
+  --input-background: rgba(0, 20, 27, 1);
+  /* The default font weight for medium text. */
+  --font-weight-medium: 700;
+  /* The default font weight for normal text. */
+  --font-weight-normal: 400;
+  /* The font weight for heavy text (headings). */
+  --font-weight-black: 900;
+  /* The color for focus rings, outlines, and other focus indicators. */
+  --ring: rgba(16, 87, 218, 1);
+  /* Shadow for small elevations, such as cards or modals. */
+  --elevation-sm: 0px 6px 0px 0px rgba(0, 0, 0, 0.3);
+  /* The color for chart elements, such as a bar or line in a chart. */
+  --chart-1: rgba(79, 234, 79, 1);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-2: rgba(16, 87, 218, 1);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-3: rgba(255, 164, 3, 1);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-4: rgba(108, 52, 153, 1);
+  /* The color for another chart element, such as a bar or line in a chart. */
+  --chart-5: rgba(255, 70, 70, 1);
+  /* The default border radius for elements such as buttons, tooltip, and other containers. */
+  --radius: 6px;
+  /* The border radius for buttons. */
+  --radius-button: 7px;
+  /* The border radius for cards. */
+  --radius-card: 10px;
+  /* The background color for sidebars, navigation menus, and other persistent elements. */
+  --sidebar: rgba(37, 39, 107, 1);
+  /* The default color for text or elements that appear on top of sidebars, navigation menus, and other persistent elements. */
+  --sidebar-foreground: rgba(255, 255, 255, 1);
+  /* The primary color used for buttons, links, and other interactive elements in sidebars and navigation menus. */
+  --sidebar-primary: rgba(16, 87, 218, 1);
+  /* The default color for text or elements that appear on top of primary colored elements in sidebars and navigation menus. */
+  --sidebar-primary-foreground: rgba(255, 255, 255, 1);
+  /* The accent color used for highlights, links, and other interactive elements in sidebars and navigation menus. */
+  --sidebar-accent: rgba(255, 164, 3, 1);
+  /* The default color for text or elements that appear on top of accent colored elements in sidebars and navigation menus. */
+  --sidebar-accent-foreground: rgba(255, 255, 255, 1);
+  /* The default border color for elements in sidebars and navigation menus. */
+  --sidebar-border: rgba(0, 0, 0, 1);
+  /* The default color for focus rings, outlines, and other focus indicators in sidebars and navigation menus. */
+  --sidebar-ring: rgba(16, 87, 218, 1);
+
+  /* Game-specific design tokens */
+  --game-bg: linear-gradient(180deg, #050313 0%, #18164C 50.95%, #25276B 100%), #0A233D;
+  --game-card-bg: linear-gradient(180deg, #352A91 0%, #434CAF 33.24%, #4751BC 62.52%, #352A91 90.34%), #5C51C7;
+  --game-card-border: #6B60D6;
+  --game-card-radius: 40px;
+
+  /* Title bar layers */
+  --titlebar-base-bg: #342E72;
+  --titlebar-base-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5), 0px 4px 12px rgba(0, 0, 0, 0.45);
+  --titlebar-mid-bg: linear-gradient(90deg, #635DC2 0%, #9090FB 42%, #635DC2 100%);
+  --titlebar-mid-border: #D2BFFF;
+  --titlebar-shine-bg: radial-gradient(163.49% 190.74% at 50% 190.74%, rgba(255, 255, 255, 0.078) 34%, rgba(255, 255, 255, 0.3) 100%);
+  --titlebar-mask-bg: #6C3499;
+  --titlebar-mask-border: #8541BD;
+  --titlebar-mask-shine-bg: #D9D9D9;
+
+  /* Title text */
+  --titlebar-text-shadow: -1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B, 0px 1.778px 2.54px rgba(0, 0, 0, 0.8), 0px 1px 0px #000000, 0px 1px 0px #000000;
+  --titlebar-text-stroke: 1.016px solid #3B3B3B;
+
+  /* Text stroke shadow — 1px outside stroke of #3B3B3B via multi-layer text-shadow */
+  --text-stroke-shadow: -1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B;
+
+  /* Button primary (gold) */
+  --btn-primary-base: #FFA402;
+  --btn-primary-mid: linear-gradient(180deg, #FFDD07 2.5%, #F8CB1F 100%);
+  --btn-primary-shine: linear-gradient(180deg, #FEE20E 26.5%, #FCD113 36%, #FCD113 64%, #F6BA06 97%);
+
+  /* Button secondary (blue) */
+  --btn-secondary-base: #1057DA;
+  --btn-secondary-mid: linear-gradient(180deg, #23AAF6 2.5%, #1989F9 100%);
+  --btn-secondary-shine: linear-gradient(180deg, #26B3F7 26.5%, #23AAF8 39.5%, #1C95F9 64%, #1983FA 97%);
+
+  /* Button tertiary (teal/grey) */
+  --btn-tertiary-base: #415E6F;
+  --btn-tertiary-mid: linear-gradient(180deg, #6998B3 2.5%, #547585 100%);
+  --btn-tertiary-shine: linear-gradient(180deg, #70A1BE 26.5%, #6995AB 36%, #56788A 64%, #56788A 97%);
+
+  /* Input fields */
+  --input-game-bg: #003343;
+  --input-game-border: rgba(0, 89, 117, 0.5);
+
+  /* Battle area */
+  --battle-area-bg: linear-gradient(180deg, #25276B 0%, #18164C 100%);
+  --battle-area-border: #4751BC;
+
+  /* Status colors */
+  --status-win: #4FEA4F;
+  --status-lose: #FF4646;
+  --status-tie: #A0A0A0;
+  --status-waiting: #FFA402;
+  --status-turn: #1057DA;
+
+  /* Card pile */
+  --pile-bg: linear-gradient(180deg, #352A91 0%, #4751BC 100%);
+  --pile-border: #6B60D6;
+
+  /* Divider */
+  --divider-bg: #444DB2;
+  --divider-line: rgba(255, 255, 255, 0.7);
+
+  /* Playing card */
+  --card-face-down-bg: linear-gradient(135deg, #352A91 0%, #4751BC 100%);
+  --card-face-down-border: #18164C;
+  --card-selected-border: #FFDD07;
+  --card-selected-glow: rgba(255, 221, 7, 0.6);
+  --card-placeholder-border: #6B60D6;
+  --card-placeholder-bg: rgba(107, 96, 214, 0.1);
+
+  /* Playing card face */
+  --card-face-bg: #FFFFFF;
+  --card-suit-red: #DC2626;
+  --card-suit-black: #000000;
+
+  /* How to Play popup */
+  --popup-overlay-bg: rgba(5, 3, 19, 0.8);
+  --popup-card-bg: linear-gradient(180deg, #352A91 0%, #434CAF 33.24%, #4751BC 62.52%, #352A91 90.34%), #5C51C7;
+  --popup-card-border: #6B60D6;
+  --popup-card-shadow: 0px 6px 0px rgba(0, 0, 0, 0.3), 0px 20px 60px rgba(0, 0, 0, 0.6);
+  --popup-card-radius: 24px;
+  --popup-section-bg: linear-gradient(180deg, #18164C 0%, #0A233D 100%), #25276B;
+  --popup-section-border: #6B60D6;
+  --popup-section-radius: 14px;
+  --popup-step-badge-bg: rgba(255, 164, 2, 0.12);
+  --popup-step-badge-border: rgba(255, 164, 2, 0.5);
+  --popup-step-badge-color: #FFA402;
+  --popup-body-text-color: rgba(255, 255, 255, 0.9);
+  --popup-label-color: rgba(255, 255, 255, 0.5);
+  --popup-sublabel-color: rgba(255, 255, 255, 0.6);
+  --popup-highlight-color: #FFA402;
+  --popup-win-bg: rgba(79, 234, 79, 0.1);
+  --popup-win-border: rgba(79, 234, 79, 0.2);
+  --popup-win-color: #4FEA4F;
+  --popup-lose-bg: rgba(255, 70, 70, 0.1);
+  --popup-lose-border: rgba(255, 70, 70, 0.2);
+  --popup-lose-color: #FF4646;
+  --popup-card-ranking-row-bg: rgba(255, 255, 255, 0.05);
+  --popup-card-ranking-row-border: rgba(255, 255, 255, 0.1);
+  --popup-tie-badge-bg: rgba(255, 164, 2, 0.15);
+  --popup-tie-badge-border: rgba(255, 164, 2, 0.35);
+  --popup-facedown-bg: linear-gradient(180deg, #1057DA 0%, #25276B 100%);
+  --popup-facedown-border: #23AAF6;
+  --popup-prize-card-border: #FFA402;
+  --popup-jackpot-badge-bg: #FFA402;
+}

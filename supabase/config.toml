@@ -1,0 +1,29 @@
+# Supabase project configuration
+# See https://supabase.com/docs/guides/cli/config
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+
+[db]
+port = 54322
+shadow_port = 54320
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+
+[functions.make-server-b59f8b43]
+verify_jwt = false

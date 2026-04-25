@@ -1,0 +1,1015 @@
+import { motion, AnimatePresence } from "motion/react";
+import { X } from "lucide-react";
+import { FancyButton } from "./FancyButton";
+
+interface HowToPlayProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+/* ── Tiny helper components ───────────────────────────── */
+
+function StepBadge({ num }: { num: number }) {
+  return (
+    <div
+      className="flex-none flex items-center justify-center"
+      style={{
+        width: "28px",
+        height: "28px",
+        background: "var(--popup-step-badge-bg)",
+        border: "1.5px solid var(--popup-step-badge-border)",
+        borderRadius: "9999px",
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontWeight: "var(--font-weight-black)" as any,
+          fontSize: "12px",
+          lineHeight: "18px",
+          color: "var(--popup-step-badge-color)",
+        }}
+      >
+        {num}
+      </span>
+    </div>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex justify-center items-center w-full" style={{ height: "15px" }}>
+      <span
+        style={{
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontWeight: "var(--font-weight-medium)" as any,
+          fontSize: "var(--text-micro)",
+          lineHeight: "15px",
+          letterSpacing: "0.5px",
+          textTransform: "uppercase",
+          color: "var(--popup-label-color)",
+        }}
+      >
+        {children}
+      </span>
+    </div>
+  );
+}
+
+function MiniCard({
+  rank,
+  suit,
+  red = false,
+  width = 48,
+  height = 68,
+  highlighted = false,
+  opacity = 1,
+}: {
+  rank: string;
+  suit: string;
+  red?: boolean;
+  width?: number;
+  height?: number;
+  highlighted?: boolean;
+  opacity?: number;
+}) {
+  const color = red ? "var(--card-suit-red)" : "#1E293B";
+  return (
+    <div
+      className="relative flex-none box-border"
+      style={{
+        width: `${width}px`,
+        height: `${height}px`,
+        background: "var(--card-face-bg)",
+        border: highlighted
+          ? `2px solid var(--popup-prize-card-border)`
+          : "1px solid #DDDDDD",
+        boxShadow:
+          "0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1)",
+        borderRadius: "6px",
+        opacity,
+      }}
+    >
+      {/* Top-left rank */}
+      <span
+        className="absolute"
+        style={{
+          left: "5px",
+          top: "3px",
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontWeight: "var(--font-weight-medium)" as any,
+          fontSize: "10px",
+          lineHeight: "10px",
+          color,
+        }}
+      >
+        {rank}
+      </span>
+      {/* Center suit */}
+      <span
+        className="absolute"
+        style={{
+          left: "50%",
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontWeight: "var(--font-weight-normal)" as any,
+          fontSize: "20px",
+          lineHeight: "20px",
+          color,
+        }}
+      >
+        {suit}
+      </span>
+      {/* Bottom-right rank */}
+      <span
+        className="absolute"
+        style={{
+          right: "5px",
+          bottom: "3px",
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontWeight: "var(--font-weight-medium)" as any,
+          fontSize: "10px",
+          lineHeight: "10px",
+          color,
+        }}
+      >
+        {rank}
+      </span>
+    </div>
+  );
+}
+
+function FaceDownCard({ width = 48, height = 68 }: { width?: number; height?: number }) {
+  return (
+    <div
+      className="flex-none flex items-center justify-center box-border"
+      style={{
+        width: `${width}px`,
+        height: `${height}px`,
+        background: "var(--popup-facedown-bg)",
+        border: "1px solid var(--popup-facedown-border)",
+        boxShadow:
+          "0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -4px rgba(0, 0, 0, 0.1)",
+        borderRadius: "6px",
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontWeight: "var(--font-weight-black)" as any,
+          fontSize: "20px",
+          lineHeight: "30px",
+          color: "var(--foreground)",
+          opacity: 0.5,
+        }}
+      >
+        ?
+      </span>
+    </div>
+  );
+}
+
+function RankingChip({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div
+        className="flex items-center justify-center"
+        style={{
+          width: "24px",
+          height: "32px",
+          background: "var(--card-face-bg)",
+          borderRadius: "4px",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "'Goldman Sans', sans-serif",
+            fontWeight: "var(--font-weight-medium)" as any,
+            fontSize: "12px",
+            lineHeight: "15px",
+            color: "var(--card-suit-black)",
+          }}
+        >
+          {label}
+        </span>
+      </div>
+      <span
+        style={{
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontWeight: "var(--font-weight-normal)" as any,
+          fontSize: "var(--text-label)",
+          lineHeight: "16px",
+          color: "var(--muted-foreground)",
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+const MOBILE_BG = "linear-gradient(180deg, #352A91 0%, #434CAF 33.235%, #4751BC 62.524%, #352A91 90.344%), linear-gradient(180deg, #050313 0%, #18164C 50.952%, #25276B 100%)";
+
+/* ── Shared title ─────────────────────────────────────── */
+function HTPTitle() {
+  return (
+    <span
+      style={{
+        fontFamily: "'Goldman Sans', sans-serif",
+        fontWeight: "var(--font-weight-black)" as any,
+        fontSize: "30px",
+        lineHeight: "36px",
+        letterSpacing: "-0.02em",
+        textTransform: "uppercase",
+        fontFeatureSettings: "'pnum' on, 'lnum' on",
+        color: "var(--foreground)",
+        textShadow: "var(--titlebar-text-shadow)",
+        WebkitTextStroke: "1.016px #3B3B3B",
+        textAlign: "center",
+      }}
+    >
+      How to Play
+    </span>
+  );
+}
+
+/* ── Main component ───────────────────────────────────── */
+
+export function HowToPlay({ isOpen, onClose }: HowToPlayProps) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          key="htp-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="fixed inset-0 z-50"
+        >
+
+          {/* ══════════════════════════════════════════════
+              MOBILE: full-screen scrollable page
+              ══════════════════════════════════════════════ */}
+          <div
+            className="sm:hidden w-full h-full overflow-y-auto"
+            style={{ backgroundImage: MOBILE_BG }}
+          >
+            {/* Sticky header */}
+            <div
+              className="sticky top-0 z-10 flex items-center justify-center"
+              style={{ height: "73px", backgroundImage: MOBILE_BG }}
+            >
+              <HTPTitle />
+            </div>
+
+            {/* Content */}
+            <div style={{ padding: "0 20px 32px", display: "flex", flexDirection: "column", gap: "16px" }}>
+
+              {/* ── sections re-use the shared section JSX below ── */}
+                {/* Title — "How to Play" */}
+                <span
+                  style={{
+                    fontFamily: "'Goldman Sans', sans-serif",
+                    fontWeight: "var(--font-weight-black)" as any,
+                    fontSize: "30px",
+                    lineHeight: "36px",
+                    letterSpacing: "-0.02em",
+                    textTransform: "uppercase",
+                    fontFeatureSettings: "'pnum' on, 'lnum' on",
+                    color: "var(--foreground)",
+                    textShadow: "var(--titlebar-text-shadow)",
+                    WebkitTextStroke: "1.016px #3B3B3B",
+                    textAlign: "center",
+                  }}
+                >
+                  How to Play
+                </span>
+
+                {/* ── Sections frame ── */}
+                <div
+                  className="flex flex-col items-start w-full"
+                  style={{ gap: "16px", paddingBottom: "16px" }}
+                >
+                  {/* ===== SECTION 1 — Deal ===== */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="box-border flex flex-col justify-center items-start w-full"
+                    style={{
+                      padding: "16px",
+                      gap: "24px",
+                      background: "var(--popup-section-bg)",
+                      border: "1px solid var(--popup-section-border)",
+                      borderRadius: "var(--popup-section-radius)",
+                    }}
+                  >
+                    {/* Step header */}
+                    <div className="flex items-start" style={{ gap: "16px", width: "100%" }}>
+                      <StepBadge num={1} />
+                      <p
+                        className="flex-1"
+                        style={{
+                          fontFamily: "'Goldman Sans', sans-serif",
+                          fontWeight: "var(--font-weight-normal)" as any,
+                          fontSize: "14px",
+                          lineHeight: "19px",
+                          color: "var(--popup-body-text-color)",
+                          margin: 0,
+                        }}
+                      >
+                        Each player gets 13 cards of their suit — ♠ Spades for P1, ♣ Clubs for P2.
+                      </p>
+                    </div>
+
+                    {/* Card illustration */}
+                    <div className="flex flex-col items-start" style={{ gap: "12px", width: "100%" }}>
+                      <div
+                        className="flex items-center justify-between w-full"
+                        style={{ padding: "0 40px" }}
+                      >
+                        {/* P1 hand */}
+                        <div className="flex flex-col items-center" style={{ gap: "4px" }}>
+                          <div className="relative" style={{ width: "52px", height: "72px" }}>
+                            <div className="absolute" style={{ left: "5px", top: "1px" }}>
+                              <MiniCard rank="K" suit="♠" width={50} height={70} />
+                            </div>
+                            <div className="absolute" style={{ left: "-1px", top: "1px" }}>
+                              <MiniCard rank="7" suit="♠" width={50} height={70} />
+                            </div>
+                            <div className="absolute" style={{ left: "-7px", top: "5px" }}>
+                              <MiniCard rank="A" suit="♠" width={55} height={73} />
+                            </div>
+                          </div>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-medium)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "15px",
+                              letterSpacing: "0.25px",
+                              textTransform: "uppercase",
+                              color: "var(--popup-sublabel-color)",
+                              marginTop: "8px",
+                            }}
+                          >
+                            P1 ♠ Spades
+                          </span>
+                        </div>
+
+                        {/* VS badge */}
+                        <div
+                          className="flex items-center justify-center box-border"
+                          style={{
+                            width: "32px",
+                            height: "28px",
+                            background: "var(--popup-step-badge-bg)",
+                            border: "1px solid var(--popup-step-badge-border)",
+                            borderRadius: "9999px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-medium)" as any,
+                              fontSize: "12px",
+                              lineHeight: "18px",
+                              color: "var(--popup-step-badge-color)",
+                            }}
+                          >
+                            VS
+                          </span>
+                        </div>
+
+                        {/* P2 hand */}
+                        <div className="flex flex-col items-center" style={{ gap: "4px" }}>
+                          <div className="relative" style={{ width: "52px", height: "72px" }}>
+                            <div className="absolute" style={{ left: "5px", top: "1px" }}>
+                              <MiniCard rank="K" suit="♣" width={50} height={70} />
+                            </div>
+                            <div className="absolute" style={{ left: "-1px", top: "1px" }}>
+                              <MiniCard rank="7" suit="♣" width={50} height={70} />
+                            </div>
+                            <div className="absolute" style={{ left: "-7px", top: "5px" }}>
+                              <MiniCard rank="A" suit="♣" width={55} height={73} />
+                            </div>
+                          </div>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-medium)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "15px",
+                              letterSpacing: "0.25px",
+                              textTransform: "uppercase",
+                              color: "var(--popup-sublabel-color)",
+                              marginTop: "8px",
+                            }}
+                          >
+                            P2 ♣ Clubs
+                          </span>
+                        </div>
+                      </div>
+
+                      <SectionLabel>Your Hand vs Theirs</SectionLabel>
+                    </div>
+                  </motion.div>
+
+                  {/* ===== SECTION 2 — Round ===== */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="box-border flex flex-col justify-center items-start w-full"
+                    style={{
+                      padding: "16px",
+                      gap: "16px",
+                      background: "var(--popup-section-bg)",
+                      border: "1px solid var(--popup-section-border)",
+                      borderRadius: "var(--popup-section-radius)",
+                    }}
+                  >
+                    <div className="flex items-start" style={{ gap: "16px", width: "100%" }}>
+                      <StepBadge num={2} />
+                      <p
+                        className="flex-1"
+                        style={{
+                          fontFamily: "'Goldman Sans', sans-serif",
+                          fontWeight: "var(--font-weight-normal)" as any,
+                          fontSize: "14px",
+                          lineHeight: "19px",
+                          color: "var(--popup-body-text-color)",
+                          margin: 0,
+                        }}
+                      >
+                        Each round a red prize card is revealed. Both players bid a card face-down.
+                      </p>
+                    </div>
+
+                    {/* Round illustration */}
+                    <div className="flex flex-col items-start" style={{ gap: "12px", width: "100%" }}>
+                      <SectionLabel>Round 1 · Bid in Secret</SectionLabel>
+                      <div
+                        className="relative w-full"
+                        style={{ height: "112px" }}
+                      >
+                        {/* P1 bids label */}
+                        <span
+                          className="absolute"
+                          style={{
+                            left: "114px",
+                            top: "83px",
+                            fontFamily: "'Goldman Sans', sans-serif",
+                            fontWeight: "var(--font-weight-medium)" as any,
+                            fontSize: "var(--text-micro)",
+                            lineHeight: "15px",
+                            textTransform: "uppercase",
+                            color: "var(--popup-sublabel-color)",
+                          }}
+                        >
+                          P1 bids
+                        </span>
+
+                        {/* P1 face-down */}
+                        <div className="absolute" style={{ left: "108px", top: "6px" }}>
+                          <FaceDownCard />
+                        </div>
+
+                        {/* Prize card (center) */}
+                        <div className="absolute flex flex-col items-center" style={{ left: "168px", top: "1px", gap: "0px" }}>
+                          <MiniCard rank="Q" suit="♥" red highlighted width={56} height={78} />
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-normal)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "12px",
+                              textAlign: "center",
+                              color: "var(--popup-sublabel-color)",
+                              marginTop: "2px",
+                            }}
+                          >
+                            Prize Card
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-medium)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "12px",
+                              textAlign: "center",
+                              color: "var(--popup-highlight-color)",
+                            }}
+                          >
+                            12 pts
+                          </span>
+                        </div>
+
+                        {/* P2 face-down */}
+                        <div className="absolute" style={{ left: "236px", top: "6px" }}>
+                          <FaceDownCard />
+                        </div>
+
+                        {/* P2 bids label */}
+                        <span
+                          className="absolute"
+                          style={{
+                            left: "242px",
+                            top: "83px",
+                            fontFamily: "'Goldman Sans', sans-serif",
+                            fontWeight: "var(--font-weight-medium)" as any,
+                            fontSize: "var(--text-micro)",
+                            lineHeight: "15px",
+                            textTransform: "uppercase",
+                            color: "var(--popup-sublabel-color)",
+                          }}
+                        >
+                          P2 bids
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* ===== SECTION 3 — Scoring ===== */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="box-border flex flex-col justify-center items-start w-full"
+                    style={{
+                      padding: "16px",
+                      gap: "16px",
+                      background: "var(--popup-section-bg)",
+                      border: "1px solid var(--popup-section-border)",
+                      borderRadius: "var(--popup-section-radius)",
+                    }}
+                  >
+                    <div className="flex items-start" style={{ gap: "16px", width: "100%" }}>
+                      <StepBadge num={3} />
+                      <p
+                        className="flex-1"
+                        style={{
+                          fontFamily: "'Goldman Sans', sans-serif",
+                          fontWeight: "var(--font-weight-normal)" as any,
+                          fontSize: "14px",
+                          lineHeight: "19px",
+                          color: "var(--popup-body-text-color)",
+                          margin: 0,
+                        }}
+                      >
+                        Higher card wins the prize. Remember: Ace = 1 (lowest), King = 13 (highest).
+                      </p>
+                    </div>
+
+                    {/* Card Ranking */}
+                    <div className="flex flex-col items-start w-full" style={{ gap: "12px" }}>
+                      <SectionLabel>Card Ranking</SectionLabel>
+                      <div
+                        className="flex items-center w-full box-border"
+                        style={{
+                          padding: "0 12px",
+                          height: "58px",
+                          background: "var(--popup-card-ranking-row-bg)",
+                          border: "1px solid var(--popup-card-ranking-row-border)",
+                          borderRadius: "var(--radius-button)",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <RankingChip label="A" value="Ace=1" />
+                        <span
+                          style={{
+                            fontFamily: "'Goldman Sans', sans-serif",
+                            fontWeight: "var(--font-weight-normal)" as any,
+                            fontSize: "16px",
+                            lineHeight: "24px",
+                            color: "rgba(255, 255, 255, 0.4)",
+                          }}
+                        >
+                          →
+                        </span>
+                        <RankingChip label="K" value="King=13" />
+                      </div>
+                    </div>
+
+                    {/* Example Round */}
+                    <div className="flex flex-col items-start w-full" style={{ gap: "8px" }}>
+                      <SectionLabel>Example Round</SectionLabel>
+                      <div className="relative w-full" style={{ height: "114px" }}>
+                        {/* P1 card (7♠) — loses */}
+                        <div className="absolute" style={{ left: "94px", top: "5px" }}>
+                          <MiniCard rank="7" suit="♠" opacity={0.5} />
+                        </div>
+                        <div
+                          className="absolute box-border flex items-center justify-center"
+                          style={{
+                            left: "94px",
+                            top: "82px",
+                            background: "var(--popup-lose-bg)",
+                            border: "1px solid rgba(255, 70, 70, 0.3)",
+                            borderRadius: "9999px",
+                            padding: "3px 9px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-medium)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "15px",
+                              color: "var(--popup-lose-color)",
+                            }}
+                          >
+                            P1 · 7
+                          </span>
+                        </div>
+
+                        {/* Prize card (J♦) */}
+                        <div className="absolute flex flex-col items-center" style={{ left: "162px", top: "0px" }}>
+                          <MiniCard rank="J" suit="♦" red highlighted width={56} height={78} />
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-normal)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "12px",
+                              textAlign: "center",
+                              color: "var(--popup-sublabel-color)",
+                              marginTop: "2px",
+                            }}
+                          >
+                            Prize Card
+                          </span>
+                        </div>
+
+                        {/* P2 card (J♣) — wins */}
+                        <div className="absolute" style={{ left: "240px", top: "5px" }}>
+                          <MiniCard rank="J" suit="♣" />
+                        </div>
+                        <div
+                          className="absolute box-border flex items-center justify-center"
+                          style={{
+                            left: "235px",
+                            top: "82px",
+                            background: "var(--popup-win-bg)",
+                            border: "1px solid rgba(79, 234, 79, 0.3)",
+                            borderRadius: "9999px",
+                            padding: "3px 9px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-medium)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "15px",
+                              color: "var(--popup-win-color)",
+                            }}
+                          >
+                            P2 · 11 ✓
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* ===== SECTION 4 — Ties ===== */}
+                  <motion.div
+  initial={{ opacity: 0, y: 12 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ delay: 0.4 }}
+  className="box-border flex flex-col justify-center items-start w-full"
+  style={{
+    padding: "16px",
+    gap: "16px",
+    background: "var(--popup-section-bg)",
+    border: "1px solid var(--popup-section-border)",
+    borderRadius: "var(--popup-section-radius)",
+  }}
+>
+  {/* Header */}
+  <div className="flex items-start" style={{ gap: "16px", width: "100%" }}>
+    <StepBadge num={4} />
+    <p
+      className="flex-1"
+      style={{
+        fontFamily: "'Goldman Sans', sans-serif",
+        fontWeight: "var(--font-weight-normal)" as any,
+        fontSize: "14px",
+        lineHeight: "19px",
+        color: "var(--popup-body-text-color)",
+        margin: 0,
+      }}
+    >
+      On a <span style={{ color: "var(--popup-highlight-color)", fontWeight: "700" }}>tie</span>, the prize carries to the next round — the winner takes both cards!
+    </p>
+  </div>
+
+  {/* Tie illustration */}
+  <div className="flex flex-col items-start w-full" style={{ gap: "12px" }}>
+    <SectionLabel>Tie → Jackpot Round</SectionLabel>
+
+    {/* Main row — P1 | Prize | P2 | Arrow | Stacked prizes */}
+    <div className="flex flex-row items-center w-full" style={{ gap: "16px" }}>
+
+      {/* P1 card */}
+      <div className="flex flex-col items-center" style={{ gap: "6px" }}>
+        <MiniCard rank="9" suit="♠" />
+        <span style={{
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontSize: "var(--text-micro)",
+          color: "var(--popup-label-color)",
+        }}>P1</span>
+      </div>
+
+      {/* Prize card — center */}
+      <div className="flex flex-col items-center" style={{ gap: "6px" }}>
+        <MiniCard rank="5" suit="♦" red highlighted width={56} height={78} />
+        <span style={{
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontSize: "var(--text-micro)",
+          color: "var(--popup-label-color)",
+        }}>Prize Card</span>
+        {/* TIE badge */}
+        <div
+          className="flex items-center justify-center"
+          style={{
+            background: "transparent",
+            border: "1.5px solid var(--popup-highlight-color)",
+            borderRadius: "9999px",
+            padding: "3px 12px",
+            marginTop: "2px",
+          }}
+        >
+          <span style={{
+            fontFamily: "'Goldman Sans', sans-serif",
+            fontWeight: "700",
+            fontSize: "var(--text-micro)",
+            color: "var(--popup-highlight-color)",
+          }}>TIE!</span>
+        </div>
+      </div>
+
+      {/* P2 card */}
+      <div className="flex flex-col items-center" style={{ gap: "6px" }}>
+        <MiniCard rank="9" suit="♣" />
+        <span style={{
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontSize: "var(--text-micro)",
+          color: "var(--popup-label-color)",
+        }}>P2</span>
+      </div>
+
+      {/* Arrow */}
+      <span style={{
+        fontSize: "20px",
+        color: "var(--muted-foreground)",
+        paddingBottom: "28px",
+      }}>→</span>
+
+      {/* Stacked prize cards on right */}
+      <div className="flex flex-col items-start" style={{ gap: "6px", flex: 1 }}>
+        <div className="relative" style={{ width: "80px", height: "90px" }}>
+          {/* Back card (5♦ rotated) */}
+          {/* Back card (5♦ rotated) */}
+<div
+  className="absolute box-border"
+  style={{
+    width: "56px",
+    height: "78px",
+    left: "18px",
+    top: "0px",
+    background: "var(--card-face-bg)",
+    border: "2px solid var(--popup-prize-card-border)",
+    borderRadius: "6px",
+    transform: "rotate(7deg)",
+    padding: "4px 6px",
+  }}
+>
+  <span style={{
+    fontFamily: "'Goldman Sans', sans-serif",
+    fontWeight: "700",
+    fontSize: "10px",
+    color: "var(--card-suit-red)",
+    display: "block",
+  }}>5</span>
+  <span style={{
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+    fontFamily: "'Goldman Sans', sans-serif",
+    fontSize: "20px",
+    color: "var(--card-suit-red)",
+  }}>♦</span>
+</div>
+          {/* Front card (Q♦) */}
+          <div className="absolute" style={{ left: "0px", top: "8px" }}>
+            <MiniCard rank="Q" suit="♦" red highlighted width={56} height={78} />
+          </div>
+          {/* 2 cards badge */}
+          <div
+            className="absolute flex items-center justify-center"
+            style={{
+              right: "-4px",
+              bottom: "-8px",
+              padding: "2px 8px",
+              background: "var(--popup-highlight-color)",
+              borderRadius: "4px",
+            }}
+          >
+            <span style={{
+              fontFamily: "'Goldman Sans', sans-serif",
+              fontWeight: "700",
+              fontSize: "var(--text-micro)",
+              color: "#000000",
+            }}>2 cards</span>
+          </div>
+        </div>
+        {/* Prize carries forward */}
+        <span style={{
+          fontFamily: "'Goldman Sans', sans-serif",
+          fontSize: "12px",
+          color: "var(--muted-foreground)",
+          marginTop: "16px",
+          whiteSpace: "nowrap",
+        }}>Prize carries forward</span>
+      </div>
+
+    </div>
+  </div>
+</motion.div>
+
+                  {/* ===== SECTION 5 — After 13 rounds ===== */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="box-border flex flex-col items-start w-full"
+                    style={{
+                      padding: "17px 17px 1px",
+                      gap: "12px",
+                      background: "linear-gradient(180deg, #18164C 0%, #0A233D 100%)",
+                      border: "1px solid var(--popup-section-border)",
+                      borderRadius: "var(--popup-section-radius)",
+                    }}
+                  >
+                    <SectionLabel>After 13 Rounds</SectionLabel>
+
+                    {/* Two score boxes */}
+                    <div
+                      className="flex items-start justify-center w-full"
+                      style={{ gap: "12px" }}
+                    >
+                      {/* Winner box */}
+                      <div
+                        className="box-border flex-1"
+                        style={{
+                          height: "95px",
+                          background: "var(--popup-win-bg)",
+                          border: "1px solid var(--popup-win-border)",
+                          borderRadius: "var(--radius-button)",
+                          position: "relative",
+                        }}
+                      >
+                        <div className="absolute w-full text-center" style={{ top: "13px" }}>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-normal)" as any,
+                              fontSize: "20px",
+                              lineHeight: "20px",
+                              color: "var(--foreground)",
+                              textAlign: "center",
+                            }}
+                          >
+                            ♠
+                          </span>
+                        </div>
+                        <div className="absolute w-full text-center" style={{ top: "37px" }}>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-black)" as any,
+                              fontSize: "20px",
+                              lineHeight: "30px",
+                              color: "var(--popup-win-color)",
+                              textAlign: "center",
+                            }}
+                          >
+                            87
+                          </span>
+                        </div>
+                        <div className="absolute w-full text-center" style={{ top: "67px" }}>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-normal)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "15px",
+                              textTransform: "uppercase",
+                              color: "var(--popup-sublabel-color)",
+                              textAlign: "center",
+                            }}
+                          >
+                            Your Score
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Loser box */}
+                      <div
+                        className="box-border flex-1"
+                        style={{
+                          height: "95px",
+                          background: "var(--popup-lose-bg)",
+                          border: "1px solid var(--popup-lose-border)",
+                          borderRadius: "var(--radius-button)",
+                          position: "relative",
+                        }}
+                      >
+                        <div className="absolute w-full text-center" style={{ top: "13px" }}>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-normal)" as any,
+                              fontSize: "20px",
+                              lineHeight: "20px",
+                              color: "var(--foreground)",
+                              textAlign: "center",
+                            }}
+                          >
+                            ♣
+                          </span>
+                        </div>
+                        <div className="absolute w-full text-center" style={{ top: "37px" }}>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-black)" as any,
+                              fontSize: "20px",
+                              lineHeight: "30px",
+                              color: "var(--popup-lose-color)",
+                              textAlign: "center",
+                            }}
+                          >
+                            64
+                          </span>
+                        </div>
+                        <div className="absolute w-full text-center" style={{ top: "67px" }}>
+                          <span
+                            style={{
+                              fontFamily: "'Goldman Sans', sans-serif",
+                              fontWeight: "var(--font-weight-normal)" as any,
+                              fontSize: "var(--text-micro)",
+                              lineHeight: "15px",
+                              textTransform: "uppercase",
+                              color: "var(--popup-sublabel-color)",
+                              textAlign: "center",
+                            }}
+                          >
+                            Opponent
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Winner announcement */}
+                    <div className="flex justify-center items-center w-full" style={{ height: "18px" }}>
+                      <span
+                        style={{
+                          fontFamily: "'Goldman Sans', sans-serif",
+                          fontWeight: "var(--font-weight-medium)" as any,
+                          fontSize: "12px",
+                          lineHeight: "18px",
+                          letterSpacing: "0.3px",
+                          textTransform: "uppercase",
+                          textAlign: "center",
+                          color: "var(--popup-win-color)",
+                        }}
+                      >
+                        ♠ Spades Wins! 🎉
+                      </span>
+                    </div>
+                  </motion.div>
+                </div>
+
+                {/* ── "Got it!" button — gold/primary 426×48 ── */}
+                <FancyButton
+                  onClick={onClose}
+                  variant="primary"
+                  width="100%"
+                  height="48px"
+                  fontSize="14px"
+                >
+                  Got it!
+                </FancyButton>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}

@@ -1,0 +1,104 @@
+/* UI-SectionTitle-Primary-FullWidth */
+
+position: relative;
+width: 449px;
+height: 85px;
+
+
+
+/* CardTitle-Base */
+
+position: absolute;
+width: 449px;
+height: 70px;
+left: 0px;
+top: 1px;
+
+
+
+/* TitleBar-Base */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 1.18%;
+bottom: 16.47%;
+
+background: #342E72;
+border: 1px solid #000000;
+box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5), 0px 4px 12px rgba(0, 0, 0, 0.45);
+
+
+/* TitleBar-Mid */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 2.35%;
+bottom: 21.18%;
+
+background: linear-gradient(90deg, #635DC2 0%, #9090FB 42%, #635DC2 100%);
+border: 1px solid #D2BFFF;
+
+
+/* TitleBar-Shine */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 2.35%;
+bottom: 65.88%;
+
+background: radial-gradient(163.49% 190.74% at 50% 190.74%, rgba(255, 255, 255, 0.078) 34%, rgba(255, 255, 255, 0.3) 100%);
+background-blend-mode: hard-light;
+
+
+/* Mask */
+
+box-sizing: border-box;
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 2.35%;
+bottom: 21.18%;
+
+background: #6C3499;
+border: 1px solid #8541BD;
+
+
+/* Shine */
+
+position: absolute;
+left: -7.21%;
+right: -7.21%;
+top: -15.29%;
+bottom: 65.88%;
+
+background: #D9D9D9;
+
+
+/* Card Title */
+
+position: absolute;
+height: 40px;
+left: 10px;
+right: 10px;
+top: 11px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 30px;
+line-height: 36px;
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: -0.02em;
+text-transform: uppercase;
+font-feature-settings: 'pnum' on, 'lnum' on;
+
+color: #FFFFFF;
+
+border: 1.016px solid #3B3B3B;
+text-shadow: 0px 1.778px 2.54px rgba(0, 0, 0, 0.8), 0px 1px 0px #000000, 0px 1px 0px #000000;

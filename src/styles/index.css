@@ -1,0 +1,167 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+/* Responsive Typography Scale */
+html {
+  font-size: clamp(14px, 2.5vw, 18px);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --text-h1: clamp(24px, 6vw, 28px);
+    --text-h2: clamp(18px, 5vw, 22px);
+    --text-h3: clamp(16px, 4vw, 18px);
+    --text-h4: clamp(14px, 3vw, 16px);
+    --text-base: clamp(13px, 2.5vw, 14px);
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1023px) {
+  :root {
+    --text-h1: clamp(28px, 6vw, 32px);
+    --text-h2: clamp(22px, 5vw, 26px);
+    --text-h3: clamp(18px, 4vw, 20px);
+    --text-h4: clamp(16px, 3vw, 18px);
+    --text-base: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --text-h1: 34px;
+    --text-h2: 28px;
+    --text-h3: 22px;
+    --text-h4: 18px;
+    --text-base: 16px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MOBILE LAYOUT — max-width 639px
+   All rules here are mobile-only. Desktop is untouched.
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 639px) {
+
+  /* ── STEP 3: Full-height single-column layout ── */
+  .game-root-mobile {
+    height: 100vh;   /* fallback for older browsers */
+    height: 100dvh;
+    min-height: unset !important;
+    overflow: hidden !important;
+    align-items: stretch !important;
+  }
+  .game-main-mobile {
+    padding: 8px !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+  }
+  .game-center-mobile {
+    gap: 8px !important;
+    overflow: hidden !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+  }
+
+  /* ── STEP 4: Header ── */
+  .header-btn-how-to-play {
+    width: auto !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* ── STEP 6: Mobile status pill (standalone, above battle zone) ── */
+  .mobile-status-pill-standalone {
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  /* ── STEP 6: Status pill in header (desktop element, hidden on mobile) ── */
+  .mobile-status-pill {
+    height: 26px !important;
+    border-radius: 13px !important;
+    padding: 0 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+  }
+  .mobile-status-pill h3 {
+    font-size: 10px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  /* ── STEP 7: Battle zone ── */
+  .battle-zone-mobile {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    justify-content: center !important;
+    padding-top: 12px !important;
+    padding-bottom: 56px !important; /* clearance for absolute last-round strip */
+  }
+  /* BOT / YOU labels: 11px, tightly above card */
+  .battle-label-side {
+    font-size: 11px !important;
+    margin-bottom: 6px !important;
+    opacity: 0.75 !important;
+  }
+  /* Prize label: same weight as side labels */
+  .battle-label-prize {
+    font-size: 11px !important;
+    font-weight: normal !important;
+    letter-spacing: 0.04em !important;
+    margin-bottom: 6px !important;
+    opacity: 0.75 !important;
+  }
+
+  /* ── STEP 8: Hand panel ── */
+  .hand-panel-mobile {
+    min-height: unset !important;
+    padding: 8px 12px !important;
+    flex-shrink: 0;
+    border-radius: 16px !important;
+  }
+  .hand-header-mobile {
+    margin-bottom: 6px !important;
+  }
+
+  /* Hand scroll row: no arrows, native scroll */
+  .hand-scroll {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 6px !important;
+    justify-content: flex-start !important;
+    padding: 4px 0 !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hand-scroll::-webkit-scrollbar { display: none; }
+  .hand-scroll > div { flex-shrink: 0; }
+
+  /* Cards at 68×96 — tappable touch targets */
+  .hand-card-sm {
+    width: 68px !important;
+    height: 96px !important;
+    overflow: hidden !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  }
+  /* size="small" native: rank 12px, centre 24px — scale for 68px width */
+  .hand-card-sm span { font-size: 12px !important; line-height: 1 !important; }
+  .hand-card-sm .flex-1 span { font-size: 24px !important; }
+  /* Padding clearance for chevron buttons */
+  .hand-scroll { padding-left: 32px !important; padding-right: 32px !important; }
+
+  /* ── STEP 8: CTA row ── */
+  .mobile-cta-row {
+    flex-shrink: 0;
+    padding: 0 !important;
+    min-height: unset !important;
+    margin-top: 10px;
+  }
+  .mobile-cta-row > div {
+    width: 100%;
+  }
+}

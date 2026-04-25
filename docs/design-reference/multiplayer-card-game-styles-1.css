@@ -1,0 +1,920 @@
+/* Multiplayer Card Game */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 52px;
+isolation: isolate;
+
+position: relative;
+width: 1329px;
+height: 997px;
+
+background: linear-gradient(180deg, #050313 0%, #18164C 50.95%, #25276B 100%), #0A233D;
+border-radius: 0px;
+
+
+/* Frame */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px 35px 35px;
+gap: 36px;
+
+width: 448px;
+height: 503px;
+
+background: linear-gradient(180deg, #352A91 0%, #434CAF 33.24%, #4751BC 62.52%, #352A91 90.34%), #5C51C7;
+border: 3px solid #6B60D6;
+box-shadow: 0px 6px 0px rgba(0, 0, 0, 0.3);
+border-radius: 40px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+z-index: 0;
+
+
+/* UI-SectionTitle-Primary-FullWidth */
+
+width: 449px;
+height: 85px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* CardTitle-Base */
+
+position: absolute;
+width: 449px;
+height: 70px;
+left: 0px;
+top: 1px;
+
+
+
+/* TitleBar-Base */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 1.18%;
+bottom: 16.47%;
+
+background: #342E72;
+border: 1px solid #000000;
+box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5), 0px 4px 12px rgba(0, 0, 0, 0.45);
+
+
+/* TitleBar-Mid */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 2.35%;
+bottom: 21.18%;
+
+background: linear-gradient(90deg, #635DC2 0%, #9090FB 42%, #635DC2 100%);
+border: 1px solid #D2BFFF;
+
+
+/* TitleBar-Shine */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 2.35%;
+bottom: 65.88%;
+
+background: radial-gradient(163.49% 190.74% at 50% 190.74%, rgba(255, 255, 255, 0.078) 34%, rgba(255, 255, 255, 0.3) 100%);
+background-blend-mode: hard-light;
+
+
+/* Mask */
+
+box-sizing: border-box;
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 2.35%;
+bottom: 21.18%;
+
+background: #6C3499;
+border: 1px solid #8541BD;
+
+
+/* Shine */
+
+position: absolute;
+left: -7.21%;
+right: -7.21%;
+top: -15.29%;
+bottom: 65.88%;
+
+background: #D9D9D9;
+
+
+/* Card Title */
+
+position: absolute;
+height: 40px;
+left: 10px;
+right: 10px;
+top: 11px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 30px;
+line-height: 36px;
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: -0.02em;
+text-transform: uppercase;
+font-feature-settings: 'pnum' on, 'lnum' on;
+
+color: #FFFFFF;
+
+border: 1.016px solid #3B3B3B;
+text-shadow: 0px 1.778px 2.54px rgba(0, 0, 0, 0.8), 0px 1px 0px #000000, 0px 1px 0px #000000;
+
+
+/* Frame 46 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 20px;
+
+width: 378px;
+height: 148px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Section Title - Button */
+
+box-sizing: border-box;
+
+width: 378px;
+height: 64px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* ButtonGraphics */
+
+position: absolute;
+width: 376px;
+height: 62px;
+left: 1px;
+top: 1px;
+
+
+
+/* ButtonBase */
+
+position: absolute;
+left: 1px;
+right: 1px;
+top: 1px;
+bottom: 1px;
+
+background: #FFA402;
+
+
+/* ButtonMid */
+
+position: absolute;
+left: 1px;
+right: 1px;
+top: 1px;
+bottom: 4px;
+
+background: linear-gradient(180deg, #FFDD07 2.5%, #F8CB1F 100%);
+
+
+/* Shine */
+
+position: absolute;
+left: 4px;
+right: 4px;
+top: 4px;
+bottom: 7px;
+
+background: linear-gradient(180deg, #FEE20E 26.5%, #FCD113 36%, #FCD113 64%, #F6BA06 97%);
+mix-blend-mode: normal;
+filter: blur(0.25px);
+border-radius: 3px;
+
+
+/* Button Title */
+
+position: absolute;
+height: 24px;
+left: 102px;
+right: 102px;
+top: calc(50% - 24px/2);
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 20px;
+line-height: 24px;
+/* identical to box height */
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: -0.02em;
+text-transform: uppercase;
+font-feature-settings: 'pnum' on, 'lnum' on;
+
+color: #FFFFFF;
+
+border: 1.016px solid #3B3B3B;
+text-shadow: 0px 1.778px 2.54px rgba(0, 0, 0, 0.8), 0px 1px 0px #000000, 0px 1px 0px #000000;
+
+
+/* Inactive Scrim */
+
+position: absolute;
+visibility: hidden;
+left: 0px;
+right: 0px;
+top: 0px;
+bottom: 0px;
+
+background: #000000;
+opacity: 0.6;
+
+
+/* Frame 42 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+width: 378px;
+height: 64px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 12px;
+
+width: 262px;
+height: 64px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* input */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 16px;
+
+width: 262px;
+height: 64px;
+
+background: #003343;
+border: 2px solid rgba(0, 89, 117, 0.5);
+border-radius: 7px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 1;
+
+
+/* ENTER CODE */
+
+width: 230px;
+height: 19px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 700;
+font-size: 16px;
+line-height: 19px;
+/* identical to box height */
+text-align: center;
+text-transform: uppercase;
+
+color: rgba(255, 255, 255, 0.6);
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Frame 43 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 10px;
+
+width: 100px;
+height: 64px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* CardInfoComponent - Button */
+
+box-sizing: border-box;
+
+width: 100px;
+height: 64px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* ButtonGraphics */
+
+position: absolute;
+width: 98px;
+height: 62px;
+left: 1px;
+top: 1px;
+
+
+
+/* ButtonBase */
+
+position: absolute;
+left: 1px;
+right: 1px;
+top: 1px;
+bottom: 1px;
+
+background: #1057DA;
+
+
+/* ButtonMid */
+
+position: absolute;
+left: 1px;
+right: 1px;
+top: 1px;
+bottom: 4px;
+
+background: linear-gradient(180deg, #23AAF6 2.5%, #1989F9 100%);
+
+
+/* Shine */
+
+position: absolute;
+left: 4px;
+right: 4px;
+top: 4px;
+bottom: 7px;
+
+background: linear-gradient(180deg, #26B3F7 26.5%, #23AAF8 39.5%, #1C95F9 64%, #1983FA 97%);
+mix-blend-mode: normal;
+filter: blur(0.25px);
+border-radius: 3px;
+
+
+/* Button Title */
+
+position: absolute;
+height: 26px;
+left: 7px;
+right: 7px;
+top: calc(50% - 26px/2);
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 16px;
+line-height: 19px;
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: -0.02em;
+text-transform: uppercase;
+font-feature-settings: 'pnum' on, 'lnum' on;
+
+color: #FFFFFF;
+
+border: 0.5px solid #3B3B3B;
+text-shadow: 0px 0.7px 1px rgba(0, 0, 0, 0.8), 0px 0.5px 0px #000000;
+
+
+/* Inactive Scrim */
+
+position: absolute;
+left: 0px;
+right: 0px;
+top: 0px;
+bottom: 0px;
+
+background: #000000;
+opacity: 0.6;
+
+
+/* Container */
+
+width: 378px;
+height: 12px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 44 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 40px;
+
+position: absolute;
+width: 378px;
+height: 18px;
+left: -2px;
+top: 5.5px;
+
+
+
+/* Container */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px 10px;
+gap: 10px;
+
+width: 169px;
+height: 18px;
+
+opacity: 0.2;
+border-top: 2px solid rgba(255, 255, 255, 0.7);
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 1;
+
+
+/* Container */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px 10px;
+gap: 10px;
+
+width: 169px;
+height: 18px;
+
+opacity: 0.2;
+border-top: 2px solid rgba(255, 255, 255, 0.7);
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
+
+
+/* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: flex-start;
+padding: 0px;
+
+position: absolute;
+width: 378px;
+height: 18px;
+left: -2px;
+top: 5.5px;
+
+border-radius: 0px;
+
+
+/* span */
+
+width: 44.62px;
+height: 18px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Or */
+
+position: absolute;
+width: 13px;
+height: 18px;
+left: 180.69px;
+top: -2.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 18px;
+/* identical to box height, or 150% */
+
+color: rgba(255, 255, 255, 0.7);
+
+
+
+/* Frame 3 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 24px;
+
+width: 378px;
+height: 64px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* Battle - SettingsButton */
+
+box-sizing: border-box;
+
+width: 378px;
+height: 64px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* ButtonGraphics */
+
+position: absolute;
+width: 376px;
+height: 62px;
+left: 1px;
+top: 1px;
+
+
+
+/* ButtonBase */
+
+position: absolute;
+left: 1px;
+right: 1px;
+top: 1px;
+bottom: 1px;
+
+background: #415E6F;
+
+
+/* ButtonMid */
+
+position: absolute;
+left: 1px;
+right: 1px;
+top: 1px;
+bottom: 4px;
+
+background: linear-gradient(180deg, #6998B3 2.5%, #547585 100%);
+
+
+/* Shine */
+
+position: absolute;
+left: 4px;
+right: 4px;
+top: 4px;
+bottom: 7px;
+
+background: linear-gradient(180deg, #70A1BE 26.5%, #6995AB 36%, #56788A 64%, #56788A 97%);
+mix-blend-mode: normal;
+filter: blur(0.25px);
+border-radius: 3px;
+
+
+/* Inactive Scrim */
+
+position: absolute;
+visibility: hidden;
+left: 0px;
+right: 0px;
+top: 0px;
+bottom: 0px;
+
+background: #000000;
+opacity: 0.6;
+
+
+/* Frame 39 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px 10px;
+gap: 10px;
+
+position: absolute;
+width: 364px;
+height: 26px;
+left: 7px;
+top: calc(50% - 26px/2);
+
+
+
+/* Button Title */
+
+width: 114px;
+height: 24px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 20px;
+line-height: 24px;
+/* identical to box height */
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: -0.02em;
+text-transform: uppercase;
+font-feature-settings: 'pnum' on, 'lnum' on;
+
+color: #FFFFFF;
+
+border: 1.016px solid #3B3B3B;
+text-shadow: 0px 1.778px 2.54px rgba(0, 0, 0, 0.8), 0px 1px 0px #000000, 0px 1px 0px #000000;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button Title */
+
+display: none;
+width: 9px;
+height: 17px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 14px;
+line-height: 17px;
+/* identical to box height */
+display: flex;
+align-items: center;
+letter-spacing: -0.02em;
+text-transform: uppercase;
+font-feature-settings: 'pnum' on, 'lnum' on;
+
+color: #FFFFFF;
+
+border: 0.5px solid #3B3B3B;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* p */
+
+width: 378px;
+height: 15px;
+
+border-radius: 0px;
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Games expires after 30 minutes of inactivity */
+
+position: absolute;
+width: 237px;
+height: 15px;
+left: 70.62px;
+top: -0.5px;
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 15px;
+/* identical to box height, or 125% */
+text-align: center;
+
+color: rgba(255, 255, 255, 0.7);
+
+
+
+/* CardInfoComponent - Button */
+
+box-sizing: border-box;
+
+position: absolute;
+width: 407px;
+height: 48px;
+left: calc(50% - 407px/2);
+bottom: 52px;
+
+border: 1.5px solid #000000;
+border-radius: 7px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
+
+
+/* ButtonGraphics */
+
+position: absolute;
+width: 405px;
+height: 46px;
+left: 1px;
+top: 1px;
+
+
+
+/* ButtonBase */
+
+position: absolute;
+left: 1px;
+right: 1px;
+top: 1px;
+bottom: 1px;
+
+background: #1057DA;
+
+
+/* ButtonMid */
+
+position: absolute;
+left: 1px;
+right: 1px;
+top: 1px;
+bottom: 4px;
+
+background: linear-gradient(180deg, #23AAF6 2.5%, #1989F9 100%);
+
+
+/* Shine */
+
+position: absolute;
+left: 4px;
+right: 4px;
+top: 4px;
+bottom: 7px;
+
+background: linear-gradient(180deg, #26B3F7 26.5%, #23AAF8 39.5%, #1C95F9 64%, #1983FA 97%);
+mix-blend-mode: normal;
+filter: blur(0.25px);
+border-radius: 3px;
+
+
+/* Button Title */
+
+position: absolute;
+height: 26px;
+left: 7px;
+right: 7px;
+top: calc(50% - 26px/2);
+
+font-family: 'Goldman Sans';
+font-style: normal;
+font-weight: 900;
+font-size: 14px;
+line-height: 17px;
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: -0.02em;
+text-transform: uppercase;
+font-feature-settings: 'pnum' on, 'lnum' on;
+
+color: #FFFFFF;
+
+border: 0.5px solid #3B3B3B;
+text-shadow: 0px 0.7px 1px rgba(0, 0, 0, 0.8), 0px 0.5px 0px #000000;
+
+
+/* Inactive Scrim */
+
+position: absolute;
+visibility: hidden;
+left: 0px;
+right: 0px;
+top: 0px;
+bottom: 0px;
+
+background: #000000;
+opacity: 0.6;
