@@ -54,9 +54,7 @@ export function FancyButton({
   const midVar = `var(--btn-${variantKey}-mid)`;
   const shineVar = `var(--btn-${variantKey}-shine)`;
 
-  const textShadow = variant === "primary"
-    ? `${STROKE}, 0px 1.778px 2.54px rgba(0, 0, 0, 0.8), 0px 1px 0px #000000`
-    : `${STROKE}, 0px 0.7px 1px rgba(0, 0, 0, 0.8), 0px 0.5px 0px #000000`;
+  const textShadow = `${STROKE}, 0px 1.778px 2.54px rgba(0, 0, 0, 0.8), 0px 1px 0px #000000`;
 
   return (
     <div

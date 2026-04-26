@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { TitleBar } from "./TitleBar";
+import { FancyButton } from "./FancyButton";
 
 interface GameOverProps {
   playerScore: number;
@@ -9,6 +9,8 @@ interface GameOverProps {
   isBotMode?: boolean;
 }
 
+const STROKE = "-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B";
+
 export function GameOver({ playerScore, opponentScore, playerNumber, onNewGame, isBotMode }: GameOverProps) {
   const playerWon = playerScore > opponentScore;
   const isTie = playerScore === opponentScore;
@@ -17,18 +19,21 @@ export function GameOver({ playerScore, opponentScore, playerNumber, onNewGame, 
   const opponentSuit = playerNumber === 1 ? "♣" : "♠";
 
   let resultText = "IT'S A TIE!";
-  let resultColor = "rgba(255,255,255,0.7)";
+  let resultColor = "rgba(255,255,255,0.85)";
+  let glowColor = "rgba(255,255,255,0.3)";
   let resultEmoji = "🤝";
 
   if (!isTie) {
     if (playerWon) {
       resultText = "YOU WIN!";
       resultColor = "#22C55E";
-      resultEmoji = "🎉";
+      glowColor = "rgba(34,197,94,0.35)";
+      resultEmoji = "🏆";
     } else {
-      resultText = isBotMode ? "BOT WINS" : "YOU LOSE";
+      resultText = "YOU LOSE";
       resultColor = "#EF4444";
-      resultEmoji = "😔";
+      glowColor = "rgba(239,68,68,0.35)";
+      resultEmoji = "💀";
     }
   }
 
@@ -40,239 +45,191 @@ export function GameOver({ playerScore, opponentScore, playerNumber, onNewGame, 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.82)", backdropFilter: "blur(4px)" }}
     >
       <motion.div
-        initial={{ scale: 0.8, y: 50 }}
-        animate={{ scale: 1, y: 0 }}
-        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        initial={{ scale: 0.85, y: 40, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 220, damping: 22 }}
         className="relative box-border flex flex-col items-center overflow-hidden"
         style={{
-          width: "448px",
-          padding: "0px 35px 35px",
-          gap: "32px",
+          width: "420px",
+          borderRadius: "20px",
           background: "var(--game-card-bg)",
-          border: "3px solid var(--game-card-border)",
-          boxShadow: "var(--popup-card-shadow)",
-          borderRadius: "var(--game-card-radius)",
+          border: "2px solid var(--game-card-border)",
+          boxShadow: `var(--popup-card-shadow), 0 0 60px ${glowColor}`,
         }}
       >
-        {/* Title Bar */}
-        <TitleBar title="GAME OVER!" fontSize="30px" />
+        {/* Top accent bar — colour matches result */}
+        <div
+          style={{
+            width: "100%",
+            height: "4px",
+            background: resultColor,
+            boxShadow: `0 0 16px 2px ${glowColor}`,
+            flexShrink: 0,
+          }}
+        />
 
-        {/* Result Emoji */}
-        <div className="flex flex-col items-center w-full" style={{ gap: "8px" }}>
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-            style={{ fontSize: "48px", lineHeight: 1, textAlign: "center" }}
-          >
-            {resultEmoji}
-          </motion.div>
-
-          {/* Result Text */}
-          <h2
-            style={{
-              fontFamily: "'Goldman Sans', sans-serif",
-              fontWeight: "var(--font-weight-black)" as any,
-              fontSize: "28px",
-              lineHeight: "34px",
-              letterSpacing: "-0.02em",
-              textTransform: "uppercase",
-              textAlign: "center",
-              color: resultColor,
-              textShadow: `-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B, 0 0 20px ${resultColor}40`,
-            }}
-          >
-            {resultText}
-          </h2>
-        </div>
-
-        {/* Score Comparison */}
-        <div className="w-full flex items-center" style={{ gap: "16px" }}>
-          {/* Player Score Box */}
-          <motion.div
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="flex-1 flex flex-col items-center justify-center"
-            style={{
-              padding: "16px",
-              borderRadius: "12px",
-              background: "rgba(0,0,0,0.2)",
-              border: playerIsWinner
-                ? "2px solid var(--popup-highlight-color)"
-                : "1px solid rgba(255,255,255,0.15)",
-            }}
-          >
-            <span style={{ fontSize: "20px", color: "var(--foreground)", lineHeight: 1 }}>
-              {playerSuit}
-            </span>
-            <span
-              style={{
-                fontFamily: "'Goldman Sans', sans-serif",
-                fontWeight: "var(--font-weight-medium)" as any,
-                fontSize: "var(--text-micro)",
-                lineHeight: "12px",
-                color: "rgba(255,255,255,0.6)",
-                textTransform: "uppercase",
-                marginTop: "6px",
-              }}
-            >
-              YOU
-            </span>
-            <span
-              style={{
-                fontFamily: "'Goldman Sans', sans-serif",
-                fontWeight: "var(--font-weight-black)" as any,
-                fontSize: "36px",
-                lineHeight: "43px",
-                color: playerIsWinner ? "#F5A623" : "var(--foreground)",
-                marginTop: "4px",
-                textShadow: "-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B",
-              }}
-            >
-              {playerScore}
-            </span>
-          </motion.div>
-
-          {/* VS */}
-          <span
-            style={{
-              fontFamily: "'Goldman Sans', sans-serif",
-              fontWeight: "var(--font-weight-medium)" as any,
-              fontSize: "12px",
-              color: "rgba(255,255,255,0.5)",
-              textTransform: "uppercase",
-              flexShrink: 0,
-            }}
-          >
-            VS
-          </span>
-
-          {/* Opponent Score Box */}
-          <motion.div
-            initial={{ x: 20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="flex-1 flex flex-col items-center justify-center"
-            style={{
-              padding: "16px",
-              borderRadius: "12px",
-              background: "rgba(0,0,0,0.2)",
-              border: opponentIsWinner
-                ? "2px solid var(--popup-highlight-color)"
-                : "1px solid rgba(255,255,255,0.15)",
-            }}
-          >
-            <span style={{ fontSize: "20px", color: "var(--foreground)", lineHeight: 1 }}>
-              {opponentSuit}
-            </span>
-            <span
-              style={{
-                fontFamily: "'Goldman Sans', sans-serif",
-                fontWeight: "var(--font-weight-medium)" as any,
-                fontSize: "var(--text-micro)",
-                lineHeight: "12px",
-                color: "rgba(255,255,255,0.6)",
-                textTransform: "uppercase",
-                marginTop: "6px",
-              }}
-            >
-              {isBotMode ? "BOT" : "OPP"}
-            </span>
-            <span
-              style={{
-                fontFamily: "'Goldman Sans', sans-serif",
-                fontWeight: "var(--font-weight-black)" as any,
-                fontSize: "36px",
-                lineHeight: "43px",
-                color: opponentIsWinner ? "#F5A623" : "var(--foreground)",
-                marginTop: "4px",
-                textShadow: "-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B",
-              }}
-            >
-              {opponentScore}
-            </span>
-          </motion.div>
-        </div>
-
-        {/* New Game Button — full layered spec button */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="w-full"
+        {/* Content */}
+        <div
+          className="flex flex-col items-center w-full"
+          style={{ padding: "36px 32px 32px", gap: "28px" }}
         >
-          <div
-            className="relative w-full cursor-pointer"
-            style={{
-              height: "64px",
-              border: "1.5px solid var(--border)",
-              borderRadius: "var(--radius-button)",
-            }}
-            onClick={onNewGame}
-          >
-            {/* ButtonBase */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background: "var(--btn-primary-base)",
-                borderRadius: "var(--radius-button)",
-              }}
-            />
-            {/* ButtonMid */}
-            <div
-              className="absolute"
-              style={{
-                left: "1px",
-                right: "1px",
-                top: "1px",
-                bottom: "4px",
-                background: "var(--btn-primary-mid)",
-                borderRadius: "var(--radius-button)",
-              }}
-            />
-            {/* Shine */}
-            <div
-              className="absolute"
-              style={{
-                left: "4px",
-                right: "4px",
-                top: "4px",
-                bottom: "7px",
-                background: "var(--btn-primary-shine)",
-                filter: "blur(0.25px)",
-                borderRadius: "3px",
-              }}
-            />
-            {/* Border overlay */}
-            <div
-              className="absolute inset-0"
-              style={{
-                border: "1.5px solid var(--border)",
-                borderRadius: "var(--radius-button)",
-              }}
-            />
-            {/* Label */}
-            <div
-              className="absolute inset-0 flex items-center justify-center"
+          {/* Emoji + Result heading */}
+          <div className="flex flex-col items-center" style={{ gap: "12px" }}>
+            <motion.div
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.15, type: "spring", stiffness: 260, damping: 18 }}
+              style={{ fontSize: "56px", lineHeight: 1, filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.5))" }}
+            >
+              {resultEmoji}
+            </motion.div>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
               style={{
                 fontFamily: "'Goldman Sans', sans-serif",
-                fontWeight: "var(--font-weight-black)" as any,
-                fontSize: "20px",
-                lineHeight: "24px",
-                letterSpacing: "-0.02em",
+                fontWeight: "900",
+                fontSize: "42px",
+                lineHeight: 1,
+                letterSpacing: "-0.03em",
                 textTransform: "uppercase",
-                color: "var(--foreground)",
-                textShadow: "-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B, 0px 0.7px 1px rgba(0,0,0,0.8), 0px 0.5px 0px #000000",
+                textAlign: "center",
+                color: resultColor,
+                textShadow: `${STROKE}, 0 0 32px ${glowColor}, 0 4px 8px rgba(0,0,0,0.6)`,
+                margin: 0,
               }}
+            >
+              {resultText}
+            </motion.h2>
+          </div>
+
+          {/* Score Comparison */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+            className="w-full flex items-stretch"
+            style={{ gap: "12px" }}
+          >
+            {/* Player Score Box */}
+            <div
+              className="flex-1 flex flex-col items-center justify-center"
+              style={{
+                padding: "16px 12px",
+                borderRadius: "14px",
+                background: playerIsWinner ? "rgba(34,197,94,0.1)" : "rgba(255,255,255,0.04)",
+                border: playerIsWinner
+                  ? "1.5px solid rgba(34,197,94,0.5)"
+                  : "1.5px solid rgba(255,255,255,0.1)",
+                gap: "6px",
+              }}
+            >
+              <span style={{ fontSize: "22px", lineHeight: 1 }}>{playerSuit}</span>
+              <span
+                style={{
+                  fontFamily: "'Goldman Sans', sans-serif",
+                  fontWeight: "500",
+                  fontSize: "10px",
+                  letterSpacing: "0.1em",
+                  color: "rgba(255,255,255,0.5)",
+                  textTransform: "uppercase",
+                }}
+              >
+                YOU
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Goldman Sans', sans-serif",
+                  fontWeight: "900",
+                  fontSize: "40px",
+                  lineHeight: 1,
+                  color: playerIsWinner ? "#F5A623" : "rgba(255,255,255,0.9)",
+                  textShadow: STROKE,
+                }}
+              >
+                {playerScore}
+              </span>
+            </div>
+
+            {/* VS divider */}
+            <div className="flex items-center justify-center flex-shrink-0" style={{ width: "32px" }}>
+              <span
+                style={{
+                  fontFamily: "'Goldman Sans', sans-serif",
+                  fontWeight: "500",
+                  fontSize: "11px",
+                  color: "rgba(255,255,255,0.3)",
+                  letterSpacing: "0.1em",
+                }}
+              >
+                VS
+              </span>
+            </div>
+
+            {/* Opponent Score Box */}
+            <div
+              className="flex-1 flex flex-col items-center justify-center"
+              style={{
+                padding: "16px 12px",
+                borderRadius: "14px",
+                background: opponentIsWinner ? "rgba(239,68,68,0.1)" : "rgba(255,255,255,0.04)",
+                border: opponentIsWinner
+                  ? "1.5px solid rgba(239,68,68,0.4)"
+                  : "1.5px solid rgba(255,255,255,0.1)",
+                gap: "6px",
+              }}
+            >
+              <span style={{ fontSize: "22px", lineHeight: 1 }}>{opponentSuit}</span>
+              <span
+                style={{
+                  fontFamily: "'Goldman Sans', sans-serif",
+                  fontWeight: "500",
+                  fontSize: "10px",
+                  letterSpacing: "0.1em",
+                  color: "rgba(255,255,255,0.5)",
+                  textTransform: "uppercase",
+                }}
+              >
+                {isBotMode ? "BOT" : "OPP"}
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Goldman Sans', sans-serif",
+                  fontWeight: "900",
+                  fontSize: "40px",
+                  lineHeight: 1,
+                  color: opponentIsWinner ? "#F5A623" : "rgba(255,255,255,0.9)",
+                  textShadow: STROKE,
+                }}
+              >
+                {opponentScore}
+              </span>
+            </div>
+          </motion.div>
+
+          {/* New Game Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="w-full"
+          >
+            <FancyButton
+              onClick={onNewGame}
+              variant="primary"
+              width="100%"
+              height="56px"
+              fontSize="18px"
             >
               NEW GAME
-            </div>
-          </div>
-        </motion.div>
+            </FancyButton>
+          </motion.div>
+        </div>
       </motion.div>
     </motion.div>
   );

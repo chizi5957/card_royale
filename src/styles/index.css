@@ -165,3 +165,18 @@ html {
     width: 100%;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   DESKTOP HAND CARDS — min-width 640px
+   Larger selection cards for desktop players only.
+   ═══════════════════════════════════════════════════════════ */
+@media (min-width: 640px) {
+  .hand-card-sm {
+    width: 90px !important;
+    height: 126px !important;
+    overflow: hidden !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  }
+  .hand-card-sm span { font-size: 16px !important; line-height: 1 !important; }
+  .hand-card-sm .flex-1 span { font-size: 36px !important; }
+}
