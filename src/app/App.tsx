@@ -4,6 +4,9 @@ import { WaitingRoom } from "./components/WaitingRoom";
 import { GameBoard } from "./components/GameBoard";
 import { NameEntry } from "./components/NameEntry";
 import { apiFetch } from "./api";
+import * as gameStorage from "../lib/gameStorage";
+import { getOrCreatePlayerId } from "../lib/playerIdentity";
+import { retryFailedSyncs, refreshGlobalPriors } from "../lib/gameSync";
 
 type GameScreen = "lobby" | "name-entry" | "waiting" | "playing";
 type PendingAction =
@@ -14,6 +17,7 @@ type PendingAction =
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState<GameScreen>("lobby");
   const [playerName, setPlayerName] = useState<string>("");
+  const [playerId, setPlayerId] = useState<string>("");
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [gameCode, setGameCode] = useState<string>("");
   const [playerNumber, setPlayerNumber] = useState<1 | 2>(1);
@@ -21,6 +25,17 @@ export default function App() {
   const [isBotMode, setIsBotMode] = useState(false);
   const [lobbyError, setLobbyError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+
+  // ── ON APP LOAD: init storage, establish identity, background syncs ────────
+  useEffect(() => {
+    (async () => {
+      await gameStorage.init();
+      const id = await getOrCreatePlayerId();
+      setPlayerId(id);
+      retryFailedSyncs();      // fire and forget
+      refreshGlobalPriors();   // fire and forget
+    })();
+  }, []);
 
   // Poll for opponent in waiting room
   useEffect(() => {
@@ -190,6 +205,7 @@ export default function App() {
           onNewGame={handleNewGame}
           isBotMode={isBotMode}
           playerName={playerName}
+          playerId={playerId}
         />
       )}
     </>

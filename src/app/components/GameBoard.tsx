@@ -7,6 +7,8 @@ import { GameOver } from "./GameOver";
 import { HowToPlay } from "./HowToPlay";
 import { apiFetch } from "../api";
 import { BotBrain } from "../botBrain";
+import * as gameStorage from "../../lib/gameStorage";
+import { syncGameRecord } from "../../lib/gameSync";
 
 interface Card {
   rank: string;
@@ -20,6 +22,7 @@ interface GameBoardProps {
   onNewGame: () => void;
   isBotMode?: boolean;
   playerName?: string;
+  playerId?: string;
 }
 
 const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -49,7 +52,7 @@ function generatePrizeDeck(): Card[] {
 
 type GamePhase = "select" | "waiting" | "reveal" | "nextRound" | "game_over";
 
-export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, playerName }: GameBoardProps) {
+export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, playerName, playerId }: GameBoardProps) {
   const [currentRound, setCurrentRound] = useState(1);
   const [phase, setPhase] = useState<GamePhase>("select");
 
@@ -89,6 +92,30 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
   const reconciled = useRef(false);
   const botBrainRef = useRef<BotBrain>(new BotBrain());
   const handScrollRef = useRef<HTMLDivElement>(null);
+
+  // ── ON GAME START: seed botBrain with player profile + global priors ───────
+  useEffect(() => {
+    if (!isBotMode) return; // only bot mode uses botBrain
+    (async () => {
+      try {
+        const profilePromise = playerId
+          ? Promise.race<import("../../lib/mlTypes").AggregatedPlayerProfile | null>([
+              gameStorage.getPlayerProfile(playerId),
+              new Promise<null>(r => setTimeout(() => r(null), 200)),
+            ])
+          : Promise.resolve(null);
+        const [profile, priors] = await Promise.all([
+          profilePromise,
+          gameStorage.getGlobalPriors(),
+        ]);
+        botBrainRef.current.reset();
+        botBrainRef.current.initializeWithGlobalPriors(priors);
+        botBrainRef.current.initializeWithProfile(profile);
+      } catch {
+        // fail silently — game works without priors
+      }
+    })();
+  }, []); // intentionally runs once on mount
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
@@ -372,6 +399,24 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     setTimeout(() => {
       if (currentRound >= 13) {
         setGameOver(true);
+        // ── ON GAME OVER: export record, save locally, sync in background ───
+        // Accumulate scores inline since state update is async
+        const finalPlayerScore = playerWonCards.reduce((s, c) => s + c.value, 0)
+          + (result === "win" ? prizesAtStake.reduce((s, c) => s + c.value, 0) : 0);
+        const finalBotScore = opponentWonCards.reduce((s, c) => s + c.value, 0)
+          + (result === "lose" ? prizesAtStake.reduce((s, c) => s + c.value, 0) : 0);
+        const outcome =
+          result === "win" ? "player_win" as const
+          : result === "lose" ? "bot_win" as const
+          : "tie" as const;
+        const pid = playerId || "anonymous";
+        try {
+          const record = botBrainRef.current.exportGameRecord(pid, outcome, finalBotScore, finalPlayerScore);
+          gameStorage.saveGameRecord(record).catch(() => {}); // local first
+          syncGameRecord(record); // background — no await
+        } catch {
+          // fail silently
+        }
       } else {
         nextRoundBot();
       }

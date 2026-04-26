@@ -1,5 +1,19 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Card Battle — Bot Brain v2
+// BOT_VERSION bumped whenever strategy logic changes significantly
+export const BOT_VERSION = "v2.0.0";
+
+import type {
+  GameRecord,
+  AggregatedPlayerProfile,
+  GlobalPriors,
+  PlayerProfile,
+  DominanceResponseMatrix,
+  StrategyLabel,
+  GameOutcome,
+} from "../lib/mlTypes";
+// ─────────────────────────────────────────────────────────────────────────────
+// Card Battle — Bot Brain v2 (continued)
 // Framework: Dominance-State Engine + Prize Bracket Predictor + Phase Governor
 //
 // Core philosophy: The game is won by answering one question correctly every
@@ -120,6 +134,18 @@ export class BotBrain {
   private tieChainActive = false;
   private tieChainPotValue = 0;
 
+  // ── ML tracking fields (instrumentation only — no logic changes) ─────────
+  private mlDominanceResponseMap: Record<string, { count: number; humanBidSum: number; humanBidAbovePrediction: number }> = {};
+  private mlSacrificeCount = 0;   // human played <3 on prize >8
+  private mlHighCardRounds: number[] = []; // rounds where human played >=10
+
+  // Cross-game priors (set by initializeWithProfile / initializeWithGlobalPriors)
+  private profileLoaded = false;
+  private priorDominanceMatrix: DominanceResponseMatrix = {};
+  private priorHighCardDistribution: number[] = new Array(13).fill(0);
+  private strategyHypothesis: StrategyLabel | null = null;
+  private globalPrizeBracketBehaviors: Record<string, { mean: number; p25: number; p75: number }> | null = null;
+
   // ── Reset between games ───────────────────────────────────────────────────
   reset() {
     this.history = [];
@@ -133,6 +159,15 @@ export class BotBrain {
     this.inBleedPhase2 = false;
     this.tieChainActive = false;
     this.tieChainPotValue = 0;
+    // Reset ML tracking (priors persist across reset — set by initialize*)
+    this.mlDominanceResponseMap = {};
+    this.mlSacrificeCount = 0;
+    this.mlHighCardRounds = [];
+    this.profileLoaded = false;
+    this.priorDominanceMatrix = {};
+    this.priorHighCardDistribution = new Array(13).fill(0);
+    this.strategyHypothesis = null;
+    this.globalPrizeBracketBehaviors = null;
   }
 
   // ── Called after every round resolves ────────────────────────────────────
@@ -152,6 +187,22 @@ export class BotBrain {
     // Update bracket offset
     const bracket = getPrizeBracket(r.prizeValue);
     const deviation = r.humanBid.value - bracket.mid;
+
+    // ── ML instrumentation (additive — no logic changes) ──────────────────
+    // High-card round tracking
+    if (r.humanBid.value >= 10) this.mlHighCardRounds.push(r.round);
+    // Sacrifice detection: human played <3 on a prize >8
+    if (r.humanBid.value < 3 && r.prizeValue > 8) this.mlSacrificeCount++;
+    // Dominance response tracking
+    const domState = this._getDominanceState(0, 0, 0, r.round);
+    const mlKey = domState as string;
+    if (!this.mlDominanceResponseMap[mlKey]) {
+      this.mlDominanceResponseMap[mlKey] = { count: 0, humanBidSum: 0, humanBidAbovePrediction: 0 };
+    }
+    const predictedMid = clamp(Math.round(bracket.mid + this.bracketOffset), bracket.low, bracket.high);
+    this.mlDominanceResponseMap[mlKey].count++;
+    this.mlDominanceResponseMap[mlKey].humanBidSum += r.humanBid.value;
+    if (r.humanBid.value > predictedMid) this.mlDominanceResponseMap[mlKey].humanBidAbovePrediction++;
     // Weighted rolling average — recent rounds matter more
     const weight = 1 + (r.round / 13); // later rounds get more weight
     this.bracketOffset = (this.bracketOffset * this.offsetSampleCount + deviation * weight)
@@ -712,11 +763,23 @@ export class BotBrain {
     }
 
     // Base prediction: bracket midpoint + learned offset
-    let predicted = clamp(
+    // If global priors available and early in game (low n), blend in population data
+    let sessionPredicted = clamp(
       Math.round(bracket.mid + this.bracketOffset),
       bracket.low,
       bracket.high,
     );
+    let predicted = sessionPredicted;
+    if (this.globalPrizeBracketBehaviors && n < 4) {
+      // Find matching bucket key
+      const prizeVal = bracket.mid; // use midpoint as bucket proxy
+      const bucketKey = prizeVal <= 3 ? "1-3" : prizeVal <= 5 ? "4-5" : prizeVal <= 9 ? "6-9" : prizeVal <= 12 ? "10-12" : "13";
+      const pb = this.globalPrizeBracketBehaviors[bucketKey];
+      if (pb) {
+        // 40% priors, 60% session (as per spec)
+        predicted = clamp(Math.round(sessionPredicted * 0.6 + pb.mean * 0.4), bracket.low, bracket.high);
+      }
+    }
 
     // Refine: filter to cards human actually still holds near the prediction
     if (humanCardsRemaining.length > 0) {
@@ -770,5 +833,107 @@ export class BotBrain {
     return asc.reduce((best, c) =>
       Math.abs(c.value - targetValue) < Math.abs(best.value - targetValue) ? c : best
     );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // ML METHODS — instrumentation and cross-game learning
+  // ══════════════════════════════════════════════════════════════════════════
+
+  private classifyStrategy(): StrategyLabel {
+    const n = this.history.length;
+    if (n === 0) return "CHAOTIC";
+
+    const tieCount = this.history.filter(r => r.result === "tie").length;
+    const tieFreq = tieCount / n;
+    const sacrificeFreq = n > 0 ? this.mlSacrificeCount / n : 0;
+    const highCardFreq = n > 0 ? this.mlHighCardRounds.length / n : 0;
+
+    // AGGRESSOR: plays high cards often, low sacrifice rate
+    if (highCardFreq >= 0.4 && sacrificeFreq < 0.15) return "AGGRESSOR";
+    // CONSERVATIONIST: low bids, high sacrifice rate
+    if (sacrificeFreq >= 0.3 && this.bracketOffset < -1.5) return "CONSERVATIONIST";
+    // CALCULATOR: low ties, low bracket offset variance, consistent bids
+    if (tieFreq < 0.1 && Math.abs(this.bracketOffset) < 1.0 && highCardFreq < 0.3) return "CALCULATOR";
+    // REACTIVE: high tie frequency, tries to match opponent
+    if (tieFreq >= 0.25) return "REACTIVE";
+    // ADAPTIVE: moderate everything — hard to pin down
+    if (Math.abs(this.bracketOffset) >= 1.0 && Math.abs(this.bracketOffset) < 3.0 && sacrificeFreq < 0.2) return "ADAPTIVE";
+    return "CHAOTIC";
+  }
+
+  exportGameRecord(
+    playerId: string,
+    outcome: GameOutcome,
+    finalBotScore: number,
+    finalPlayerScore: number,
+  ): GameRecord {
+    const n = this.history.length;
+    const tieCount = this.history.filter(r => r.result === "tie").length;
+    const tieFrequency = n > 0 ? tieCount / n : 0;
+    const avgBidToPrizeRatio = n > 0
+      ? this.history.reduce((s, r) => s + (r.prizeValue > 0 ? r.humanBid / r.prizeValue : 0), 0) / n
+      : 0;
+    const sacrificeFrequency = n > 0 ? this.mlSacrificeCount / n : 0;
+
+    const dominanceResponseMatrix: DominanceResponseMatrix = {};
+    for (const [key, val] of Object.entries(this.mlDominanceResponseMap)) {
+      dominanceResponseMatrix[key as keyof DominanceResponseMatrix] = { ...val };
+    }
+
+    const playerProfile: PlayerProfile = {
+      bracketOffset: this.bracketOffset,
+      dominanceResponseMatrix,
+      avgBidToPrizeRatio,
+      tieFrequency,
+      sacrificeFrequency,
+      highCardRounds: [...this.mlHighCardRounds],
+      strategyLabel: this.classifyStrategy(),
+    };
+
+    return {
+      gameId: typeof crypto !== "undefined" ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+      playerId,
+      timestamp: Date.now(),
+      outcome,
+      finalBotScore,
+      finalPlayerScore,
+      totalRounds: n,
+      rounds: [...this.history],
+      playerProfile,
+      botVersion: BOT_VERSION,
+    };
+  }
+
+  initializeWithProfile(profile: AggregatedPlayerProfile | null): void {
+    if (!profile || profile.gamesPlayed < 3) return;
+    this.profileLoaded = true;
+    // Seed bracketOffset with 60% weight from historical average
+    this.bracketOffset = profile.bracketOffset * 0.6;
+    this.offsetSampleCount = Math.min(profile.gamesPlayed, 5);
+    // Store prior matrices for blending
+    this.priorDominanceMatrix = profile.dominanceResponseMatrix ?? {};
+    this.priorHighCardDistribution = profile.highCardTimingDistribution?.length === 13
+      ? [...profile.highCardTimingDistribution]
+      : new Array(13).fill(0);
+    // Infer strategy hypothesis from recent history
+    const recent = (profile.strategyHistory ?? []).slice(-3);
+    if (recent.length >= 2) {
+      const counts: Record<string, number> = {};
+      for (const s of recent) counts[s] = (counts[s] ?? 0) + 1;
+      const top = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+      if (top && top[1] >= 2) this.strategyHypothesis = top[0] as StrategyLabel;
+    }
+  }
+
+  initializeWithGlobalPriors(priors: GlobalPriors | null): void {
+    if (!priors) return;
+    // Only use population offset if no player profile was loaded
+    if (!this.profileLoaded) {
+      this.bracketOffset = priors.populationBracketOffset;
+    }
+    // Store prize bracket behaviors for blended predictions
+    if (priors.prizeBracketBehaviors && Object.keys(priors.prizeBracketBehaviors).length > 0) {
+      this.globalPrizeBracketBehaviors = priors.prizeBracketBehaviors;
+    }
   }
 }
