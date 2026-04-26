@@ -5,11 +5,16 @@ import { GameBoard } from "./components/GameBoard";
 import { NameEntry } from "./components/NameEntry";
 import { apiFetch } from "./api";
 
-type GameScreen = "name-entry" | "lobby" | "waiting" | "playing";
+type GameScreen = "lobby" | "name-entry" | "waiting" | "playing";
+type PendingAction =
+  | { type: "create" }
+  | { type: "join"; code: string }
+  | { type: "bot" };
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<GameScreen>("name-entry");
+  const [currentScreen, setCurrentScreen] = useState<GameScreen>("lobby");
   const [playerName, setPlayerName] = useState<string>("");
+  const [pendingAction, setPendingAction] = useState<PendingAction | null>(null);
   const [gameCode, setGameCode] = useState<string>("");
   const [playerNumber, setPlayerNumber] = useState<1 | 2>(1);
   const [opponentJoined, setOpponentJoined] = useState(false);
@@ -39,66 +44,93 @@ export default function App() {
     return () => clearInterval(interval);
   }, [currentScreen, gameCode, isBotMode, opponentJoined]);
 
-  const handleCreateGame = async () => {
-    try {
-      setLobbyError(null);
-      setIsCreating(true);
-      setOpponentJoined(false);
-      setIsBotMode(false);
-      setPlayerNumber(1);
-
-      const res = await apiFetch("/game/create", { method: "POST" });
-
-      if (res.ok) {
-        const data = await res.json();
-        setGameCode(data.gameCode);
-        setCurrentScreen("waiting");
-      } else {
-        const errData = await res.json().catch(() => null);
-        setLobbyError(errData?.error || `Server error (${res.status})`);
-      }
-    } catch (e: any) {
-      console.error("Error creating game", e);
-      setLobbyError(
-        e?.message?.includes("unreachable")
-          ? e.message
-          : "Could not reach game server. Please try again.",
-      );
-    } finally {
-      setIsCreating(false);
-    }
+  // ── Lobby action interceptors — store intent, ask for name first ──
+  const handleCreateGame = () => {
+    setLobbyError(null);
+    setPendingAction({ type: "create" });
+    setCurrentScreen("name-entry");
   };
 
-  const handleJoinGame = async (code: string) => {
-    try {
-      setLobbyError(null);
-      const res = await apiFetch("/game/join", {
-        method: "POST",
-        body: JSON.stringify({ gameCode: code }),
-      });
-
-      if (res.ok) {
-        setGameCode(code);
-        setPlayerNumber(2);
-        setOpponentJoined(true);
-        setIsBotMode(false);
-        setCurrentScreen("waiting");
-        setTimeout(() => setCurrentScreen("playing"), 2000);
-      } else {
-        const err = await res.json().catch(() => null);
-        setLobbyError(err?.error || "Failed to join game");
-      }
-    } catch (e) {
-      console.error("Error joining game", e);
-      setLobbyError("Could not reach game server. Please try again.");
-    }
+  const handleJoinGame = (code: string) => {
+    setLobbyError(null);
+    setPendingAction({ type: "join", code });
+    setCurrentScreen("name-entry");
   };
 
   const handlePlayVsBot = () => {
     setLobbyError(null);
-    setIsBotMode(true);
-    setPlayerNumber(1);
-    setCurrentScreen("playing");
+    setPendingAction({ type: "bot" });
+    setCurrentScreen("name-entry");
+  };
+
+  // ── After name is entered, execute the stored action ──
+  const handleNameContinue = async (name: string) => {
+    setPlayerName(name);
+
+    if (!pendingAction) {
+      setCurrentScreen("lobby");
+      return;
+    }
+
+    if (pendingAction.type === "bot") {
+      setIsBotMode(true);
+      setPlayerNumber(1);
+      setCurrentScreen("playing");
+      return;
+    }
+
+    if (pendingAction.type === "create") {
+      try {
+        setIsCreating(true);
+        setOpponentJoined(false);
+        setIsBotMode(false);
+        setPlayerNumber(1);
+        const res = await apiFetch("/game/create", { method: "POST" });
+        if (res.ok) {
+          const data = await res.json();
+          setGameCode(data.gameCode);
+          setCurrentScreen("waiting");
+        } else {
+          const errData = await res.json().catch(() => null);
+          setLobbyError(errData?.error || `Server error (${res.status})`);
+          setCurrentScreen("lobby");
+        }
+      } catch (e: any) {
+        setLobbyError(
+          e?.message?.includes("unreachable")
+            ? e.message
+            : "Could not reach game server. Please try again.",
+        );
+        setCurrentScreen("lobby");
+      } finally {
+        setIsCreating(false);
+      }
+      return;
+    }
+
+    if (pendingAction.type === "join") {
+      try {
+        const res = await apiFetch("/game/join", {
+          method: "POST",
+          body: JSON.stringify({ gameCode: pendingAction.code }),
+        });
+        if (res.ok) {
+          setGameCode(pendingAction.code);
+          setPlayerNumber(2);
+          setOpponentJoined(true);
+          setIsBotMode(false);
+          setCurrentScreen("waiting");
+          setTimeout(() => setCurrentScreen("playing"), 2000);
+        } else {
+          const err = await res.json().catch(() => null);
+          setLobbyError(err?.error || "Failed to join game");
+          setCurrentScreen("lobby");
+        }
+      } catch (e) {
+        setLobbyError("Could not reach game server. Please try again.");
+        setCurrentScreen("lobby");
+      }
+    }
   };
 
   const handleCancelGame = () => {
@@ -107,11 +139,6 @@ export default function App() {
     setOpponentJoined(false);
     setIsBotMode(false);
     setLobbyError(null);
-  };
-
-  const handleNameContinue = (name: string) => {
-    setPlayerName(name);
-    setCurrentScreen("lobby");
   };
 
   const handleNewGame = () => {
@@ -124,10 +151,6 @@ export default function App() {
 
   return (
     <>
-      {currentScreen === "name-entry" && (
-        <NameEntry onContinue={handleNameContinue} />
-      )}
-
       {currentScreen === "lobby" && (
         <GameLobby
           onCreateGame={handleCreateGame}
@@ -138,13 +161,25 @@ export default function App() {
         />
       )}
 
+      {currentScreen === "name-entry" && (
+        <NameEntry
+          onContinue={handleNameContinue}
+          onBack={() => setCurrentScreen("lobby")}
+          pendingAction={pendingAction?.type ?? "create"}
+        />
+      )}
+
       {currentScreen === "waiting" && (
         <WaitingRoom
           gameCode={gameCode}
           playerNumber={playerNumber}
           opponentJoined={opponentJoined}
           onCancel={handleCancelGame}
-          onPlayVsBot={handlePlayVsBot}
+          onPlayVsBot={() => {
+            setIsBotMode(true);
+            setPlayerNumber(1);
+            setCurrentScreen("playing");
+          }}
         />
       )}
 

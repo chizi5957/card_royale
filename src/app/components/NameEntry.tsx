@@ -4,12 +4,20 @@ import { FancyButton } from "./FancyButton";
 
 interface NameEntryProps {
   onContinue: (name: string) => void;
+  onBack: () => void;
+  pendingAction?: "create" | "join" | "bot";
 }
 
 const MOBILE_BG =
   "linear-gradient(180deg, #352A91 0%, #434CAF 33.235%, #4751BC 62.524%, #352A91 90.344%), linear-gradient(180deg, #050313 0%, #18164C 50.952%, #25276B 100%)";
 
-export function NameEntry({ onContinue }: NameEntryProps) {
+const SUBTITLE: Record<string, string> = {
+  create: "Creating a new game",
+  join: "Joining a game",
+  bot: "Playing vs Bot",
+};
+
+export function NameEntry({ onContinue, onBack, pendingAction = "create" }: NameEntryProps) {
   const [name, setName] = useState("");
 
   const trimmed = name.trim();
@@ -22,6 +30,8 @@ export function NameEntry({ onContinue }: NameEntryProps) {
   const handleKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && canContinue) handleSubmit();
   };
+
+  const subtitle = SUBTITLE[pendingAction];
 
   const inputStyle: React.CSSProperties = {
     fontFamily: "'Goldman Sans', sans-serif",
@@ -53,25 +63,27 @@ export function NameEntry({ onContinue }: NameEntryProps) {
       className="flex sm:hidden flex-col relative overflow-hidden"
       style={{ minHeight: "100dvh", backgroundImage: MOBILE_BG }}
     >
-      {/* simple header bar */}
-      <div
-        className="relative w-full flex-none flex items-center justify-center"
-        style={{ height: "72px" }}
-      >
-        <span
+      {/* Back arrow */}
+      <div style={{ padding: "16px 20px 0" }}>
+        <button
+          onClick={onBack}
           style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "rgba(255,255,255,0.6)",
             fontFamily: "'Goldman Sans', sans-serif",
-            fontWeight: 900,
-            fontSize: "22px",
-            color: "#fff",
-            textShadow:
-              "-1px -1px 0 #3B3B3B,1px -1px 0 #3B3B3B,-1px 1px 0 #3B3B3B,1px 1px 0 #3B3B3B,0 2px 4px rgba(0,0,0,0.8)",
+            fontSize: "13px",
             textTransform: "uppercase",
-            letterSpacing: "-0.02em",
+            letterSpacing: "0.06em",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: 0,
           }}
         >
-          THE BIDDING WAR
-        </span>
+          ← Back
+        </button>
       </div>
 
       <div
@@ -86,7 +98,7 @@ export function NameEntry({ onContinue }: NameEntryProps) {
         }}
       >
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: "48px", marginBottom: "12px" }}>🃏</div>
+          <div style={{ fontSize: "52px", marginBottom: "14px" }}>🃏</div>
           <h2
             style={{
               fontFamily: "'Goldman Sans', sans-serif",
@@ -96,7 +108,8 @@ export function NameEntry({ onContinue }: NameEntryProps) {
               textTransform: "uppercase",
               letterSpacing: "-0.02em",
               margin: 0,
-              textShadow: "-1px -1px 0 #3B3B3B,1px -1px 0 #3B3B3B,-1px 1px 0 #3B3B3B,1px 1px 0 #3B3B3B",
+              textShadow:
+                "-1px -1px 0 #3B3B3B,1px -1px 0 #3B3B3B,-1px 1px 0 #3B3B3B,1px 1px 0 #3B3B3B",
             }}
           >
             What's your name?
@@ -104,14 +117,14 @@ export function NameEntry({ onContinue }: NameEntryProps) {
           <p
             style={{
               fontFamily: "'Goldman Sans', sans-serif",
-              fontSize: "12px",
-              color: "rgba(255,255,255,0.55)",
+              fontSize: "11px",
+              color: "rgba(255,255,255,0.45)",
               marginTop: "8px",
               textTransform: "uppercase",
-              letterSpacing: "0.08em",
+              letterSpacing: "0.1em",
             }}
           >
-            Enter at least 2 characters
+            {subtitle}
           </p>
         </div>
 
@@ -151,76 +164,54 @@ export function NameEntry({ onContinue }: NameEntryProps) {
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.45 }}
+        transition={{ duration: 0.35 }}
         className="relative box-border flex flex-col items-center overflow-hidden"
         style={{
           width: "448px",
-          padding: "0 35px 40px",
-          gap: "28px",
+          padding: "40px 35px",
+          gap: "24px",
           background: "var(--game-card-bg)",
           border: "3px solid var(--game-card-border)",
           boxShadow: "var(--elevation-sm)",
           borderRadius: "var(--game-card-radius)",
         }}
       >
-        {/* Title bar — same as GameLobby */}
-        <div className="relative w-[449px] h-[85px] flex-none" style={{ margin: "0 -35px" }}>
-          <div
-            className="absolute left-0 right-0 top-0 bottom-[16.47%]"
+        {/* Back link */}
+        <div style={{ width: "378px", display: "flex", alignItems: "center" }}>
+          <button
+            onClick={onBack}
             style={{
-              background: "#1e1b4b",
-              border: "1px solid #000",
-              boxShadow: "0px 2px 4px rgba(0,0,0,0.5),0px 4px 12px rgba(0,0,0,0.45)",
-              clipPath: "polygon(0 0,100% 0,100% 80%,50% 100%,0 80%)",
-            }}
-          />
-          <div
-            className="absolute left-0 right-0 top-[2.35%] bottom-[21.18%]"
-            style={{
-              background: "linear-gradient(90deg,#635DC2 0%,#9090FB 42%,#635DC2 100%)",
-              border: "1px solid #D2BFFF",
-              clipPath: "polygon(0 0,100% 0,100% 80%,50% 100%,0 80%)",
-            }}
-          />
-          <div
-            className="absolute left-0 right-0 top-[2.35%] bottom-[65.88%]"
-            style={{
-              background:
-                "radial-gradient(163.49% 190.74% at 50% 190.74%,rgba(255,255,255,0.078) 34%,rgba(255,255,255,0.3) 100%)",
-              mixBlendMode: "hard-light",
-              clipPath: "polygon(0 0,100% 0,100% 80%,50% 100%,0 80%)",
-            }}
-          />
-          <div
-            className="absolute left-[10px] right-[10px] top-[11px] h-[40px] flex items-center justify-center text-center"
-            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "rgba(255,255,255,0.5)",
               fontFamily: "'Goldman Sans', sans-serif",
-              fontWeight: 900,
-              fontSize: "30px",
-              letterSpacing: "-0.02em",
+              fontSize: "12px",
               textTransform: "uppercase",
-              color: "#fff",
-              textShadow:
-                "-1px -1px 0 #3B3B3B,1px -1px 0 #3B3B3B,-1px 1px 0 #3B3B3B,1px 1px 0 #3B3B3B,0px 1.778px 2.54px rgba(0,0,0,0.8)",
+              letterSpacing: "0.08em",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: 0,
             }}
           >
-            THE BIDDING WAR
-          </div>
+            ← Back
+          </button>
         </div>
 
         {/* Icon + heading */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          style={{ textAlign: "center", paddingTop: "4px" }}
+          transition={{ delay: 0.1 }}
+          style={{ textAlign: "center" }}
         >
-          <div style={{ fontSize: "52px", lineHeight: 1, marginBottom: "14px" }}>🃏</div>
+          <div style={{ fontSize: "56px", lineHeight: 1, marginBottom: "16px" }}>🃏</div>
           <h2
             style={{
               fontFamily: "'Goldman Sans', sans-serif",
               fontWeight: 900,
-              fontSize: "28px",
+              fontSize: "30px",
               color: "#fff",
               textTransform: "uppercase",
               letterSpacing: "-0.02em",
@@ -235,13 +226,13 @@ export function NameEntry({ onContinue }: NameEntryProps) {
             style={{
               fontFamily: "'Goldman Sans', sans-serif",
               fontSize: "11px",
-              color: "rgba(255,255,255,0.45)",
+              color: "rgba(255,255,255,0.4)",
               marginTop: "8px",
               textTransform: "uppercase",
-              letterSpacing: "0.1em",
+              letterSpacing: "0.12em",
             }}
           >
-            Enter at least 2 characters
+            {subtitle}
           </p>
         </motion.div>
 
@@ -249,7 +240,7 @@ export function NameEntry({ onContinue }: NameEntryProps) {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
+          transition={{ delay: 0.18 }}
           style={{ width: "378px", ...inputWrap }}
         >
           <input
@@ -268,7 +259,7 @@ export function NameEntry({ onContinue }: NameEntryProps) {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
+          transition={{ delay: 0.26 }}
           style={{ width: "378px" }}
         >
           <FancyButton
