@@ -2,12 +2,14 @@ import { useState, useEffect } from "react";
 import { GameLobby } from "./components/GameLobby";
 import { WaitingRoom } from "./components/WaitingRoom";
 import { GameBoard } from "./components/GameBoard";
+import { NameEntry } from "./components/NameEntry";
 import { apiFetch } from "./api";
 
-type GameScreen = "lobby" | "waiting" | "playing";
+type GameScreen = "name-entry" | "lobby" | "waiting" | "playing";
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<GameScreen>("lobby");
+  const [currentScreen, setCurrentScreen] = useState<GameScreen>("name-entry");
+  const [playerName, setPlayerName] = useState<string>("");
   const [gameCode, setGameCode] = useState<string>("");
   const [playerNumber, setPlayerNumber] = useState<1 | 2>(1);
   const [opponentJoined, setOpponentJoined] = useState(false);
@@ -107,6 +109,11 @@ export default function App() {
     setLobbyError(null);
   };
 
+  const handleNameContinue = (name: string) => {
+    setPlayerName(name);
+    setCurrentScreen("lobby");
+  };
+
   const handleNewGame = () => {
     setCurrentScreen("lobby");
     setGameCode("");
@@ -117,6 +124,10 @@ export default function App() {
 
   return (
     <>
+      {currentScreen === "name-entry" && (
+        <NameEntry onContinue={handleNameContinue} />
+      )}
+
       {currentScreen === "lobby" && (
         <GameLobby
           onCreateGame={handleCreateGame}
@@ -143,6 +154,7 @@ export default function App() {
           playerNumber={playerNumber}
           onNewGame={handleNewGame}
           isBotMode={isBotMode}
+          playerName={playerName}
         />
       )}
     </>

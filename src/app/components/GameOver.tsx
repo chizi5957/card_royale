@@ -7,16 +7,20 @@ interface GameOverProps {
   playerNumber: 1 | 2;
   onNewGame: () => void;
   isBotMode?: boolean;
+  playerName?: string;
 }
 
 const STROKE = "-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B";
 
-export function GameOver({ playerScore, opponentScore, playerNumber, onNewGame, isBotMode }: GameOverProps) {
+export function GameOver({ playerScore, opponentScore, playerNumber, onNewGame, isBotMode, playerName }: GameOverProps) {
   const playerWon = playerScore > opponentScore;
   const isTie = playerScore === opponentScore;
 
   const playerSuit = playerNumber === 1 ? "♠" : "♣";
   const opponentSuit = playerNumber === 1 ? "♣" : "♠";
+
+  // Name display: uppercase, max 10 chars so it fits
+  const displayName = playerName ? playerName.toUpperCase().slice(0, 10) : null;
 
   let resultText = "IT'S A TIE!";
   let resultColor = "rgba(255,255,255,0.85)";
@@ -25,12 +29,12 @@ export function GameOver({ playerScore, opponentScore, playerNumber, onNewGame, 
 
   if (!isTie) {
     if (playerWon) {
-      resultText = "YOU WIN!";
+      resultText = displayName ? `${displayName} WINS!` : "YOU WIN!";
       resultColor = "#22C55E";
       glowColor = "rgba(34,197,94,0.35)";
       resultEmoji = "🏆";
     } else {
-      resultText = "YOU LOSE";
+      resultText = displayName ? `${displayName} LOSES` : "YOU LOSE";
       resultColor = "#EF4444";
       glowColor = "rgba(239,68,68,0.35)";
       resultEmoji = "💀";
@@ -94,7 +98,7 @@ export function GameOver({ playerScore, opponentScore, playerNumber, onNewGame, 
               style={{
                 fontFamily: "'Goldman Sans', sans-serif",
                 fontWeight: "900",
-                fontSize: "42px",
+                fontSize: resultText.length > 10 ? "32px" : "42px",
                 lineHeight: 1,
                 letterSpacing: "-0.03em",
                 textTransform: "uppercase",
@@ -140,7 +144,7 @@ export function GameOver({ playerScore, opponentScore, playerNumber, onNewGame, 
                   textTransform: "uppercase",
                 }}
               >
-                YOU
+                {displayName || "YOU"}
               </span>
               <span
                 style={{

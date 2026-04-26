@@ -19,6 +19,7 @@ interface GameBoardProps {
   playerNumber: 1 | 2;
   onNewGame: () => void;
   isBotMode?: boolean;
+  playerName?: string;
 }
 
 const ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
@@ -48,7 +49,7 @@ function generatePrizeDeck(): Card[] {
 
 type GamePhase = "select" | "waiting" | "reveal" | "nextRound" | "game_over";
 
-export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode }: GameBoardProps) {
+export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, playerName }: GameBoardProps) {
   const [currentRound, setCurrentRound] = useState(1);
   const [phase, setPhase] = useState<GamePhase>("select");
 
@@ -1239,6 +1240,7 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode }: Game
           playerNumber={playerNumber}
           onNewGame={onNewGame}
           isBotMode={isBotMode}
+          playerName={playerName}
         />
       )}
 
