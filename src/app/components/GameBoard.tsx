@@ -434,8 +434,10 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
   };
 
   // Gate the game board render until server data is confirmed (multiplayer only)
+  // gameOver must bypass the gate — at game end currentPrize=null and hand is empty
   const readyToRender =
     isBotMode ||
+    gameOver ||
     (serverReady && currentPrize !== null && playerHand.length > 0);
 
   if (!readyToRender) {
