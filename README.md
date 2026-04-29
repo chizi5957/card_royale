@@ -1,4 +1,4 @@
-# Card Royale — The Bidding War
+# Card Royale — The Bidding War 
 
 A two-player card game where you bid your cards to win prize cards. Play against a friend online or challenge the bot.
 
