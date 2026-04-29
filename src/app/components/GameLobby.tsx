@@ -500,9 +500,6 @@ export function GameLobby({ onCreateGame, onJoinGame, onPlayVsBot, error, isCrea
           </FancyButton>
         </motion.div>
 
-        {/* How to Play Modal */}
-        <HowToPlay isOpen={showHowToPlay} onClose={() => setShowHowToPlay(false)} />
-
         {/* Database Setup Modal */}
         <DatabaseSetupModal
           isOpen={showDatabaseSetup}
@@ -510,6 +507,9 @@ export function GameLobby({ onCreateGame, onJoinGame, onPlayVsBot, error, isCrea
           error={error || undefined}
         />
       </div>
+
+      {/* How to Play Modal — outside both layouts so it works on mobile and desktop */}
+      <HowToPlay isOpen={showHowToPlay} onClose={() => setShowHowToPlay(false)} />
     </>
   );
 }

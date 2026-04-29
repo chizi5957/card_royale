@@ -92,6 +92,8 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
   const reconciled = useRef(false);
   const botBrainRef = useRef<BotBrain>(new BotBrain());
   const handScrollRef = useRef<HTMLDivElement>(null);
+  // Preserve final scores so they survive server state wipe on game finish
+  const finalScoresRef = useRef<{ player: number; opponent: number } | null>(null);
 
   // ── ON GAME START: seed botBrain with player profile + global priors ───────
   useEffect(() => {
@@ -159,21 +161,32 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     setCurrentPrize(data.currentPrize);
     setCarriedOverPrizes(data.carriedOverPrizes || []);
 
+    const p1WonCards: Card[] = data.player1WonCards ?? [];
+    const p2WonCards: Card[] = data.player2WonCards ?? [];
+    const myWonCards  = playerNumber === 1 ? p1WonCards : p2WonCards;
+    const oppWonCards = playerNumber === 1 ? p2WonCards : p1WonCards;
+
     if (playerNumber === 1) {
-      setPlayerHand(data.player1Hand);
-      setOpponentHand(data.player2Hand);
+      setPlayerHand(data.player1Hand ?? []);
+      setOpponentHand(data.player2Hand ?? []);
       setPlayerPlayedCard(data.player1Card);
       setOpponentPlayedCard(data.player2Card);
-      setPlayerWonCards(data.player1WonCards);
-      setOpponentWonCards(data.player2WonCards);
     } else {
-      setPlayerHand(data.player2Hand);
-      setOpponentHand(data.player1Hand);
+      setPlayerHand(data.player2Hand ?? []);
+      setOpponentHand(data.player1Hand ?? []);
       setPlayerPlayedCard(data.player2Card);
       setOpponentPlayedCard(data.player1Card);
-      setPlayerWonCards(data.player2WonCards);
-      setOpponentWonCards(data.player1WonCards);
     }
+
+    // Snapshot scores before server can wipe wonCards in finished state
+    const newPlayerScore  = myWonCards.reduce((s: number, c: Card) => s + c.value, 0);
+    const newOpponentScore = oppWonCards.reduce((s: number, c: Card) => s + c.value, 0);
+    if (newPlayerScore > 0 || newOpponentScore > 0) {
+      finalScoresRef.current = { player: newPlayerScore, opponent: newOpponentScore };
+    }
+
+    setPlayerWonCards(myWonCards);
+    setOpponentWonCards(oppWonCards);
 
     setPhase(data.phase);
     if (data.status === "finished") setGameOver(true);
@@ -256,14 +269,25 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
   useEffect(() => {
     if (!isBotMode && phase === "reveal") {
       const timer = setTimeout(async () => {
+        if (!gameCode) return;
+        // Round 13 is the last — end locally instead of asking server for next round
+        if (currentRound >= 13) {
+          const saved = finalScoresRef.current;
+          if (saved) {
+            setPlayerWonCards(prev =>
+              prev.reduce((s, c) => s + c.value, 0) === 0 && saved.player > 0
+                ? prev  // already have cards, keep them
+                : prev
+            );
+          }
+          setGameOver(true);
+          return;
+        }
         try {
-          if (!gameCode) return;
           const url = `/game/next-round`;
           await apiFetch(url, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ gameCode })
           });
           setSelectedCard(null);
@@ -273,7 +297,7 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
       }, 4000);
       return () => clearTimeout(timer);
     }
-  }, [phase, isBotMode, gameCode]);
+  }, [phase, isBotMode, gameCode, currentRound]);
 
   const playerScore = playerWonCards.reduce((sum, card) => sum + card.value, 0);
   const opponentScore = opponentWonCards.reduce((sum, card) => sum + card.value, 0);
@@ -1282,8 +1306,8 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
       {/* Game Over Modal */}
       {gameOver && (
         <GameOver
-          playerScore={playerScore}
-          opponentScore={opponentScore}
+          playerScore={finalScoresRef.current?.player ?? playerScore}
+          opponentScore={finalScoresRef.current?.opponent ?? opponentScore}
           playerNumber={playerNumber}
           onNewGame={onNewGame}
           isBotMode={isBotMode}
