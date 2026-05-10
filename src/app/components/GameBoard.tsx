@@ -348,6 +348,7 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     if (isBotMode) {
       setPlayerHand((prev) => prev.filter((c) => c.rank !== selectedCard.rank));
       setPlayerPlayedCard(selectedCard);
+      setSelectedCard(null);
 
       const randomOpponentCard = botBrainRef.current.selectCard({
         botHand: opponentHand,
@@ -369,6 +370,7 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
       }, delay);
     } else {
       setPlayerPlayedCard(selectedCard);
+      setSelectedCard(null);
       try {
         if (!gameCode) return;
         await apiFetch(`/game/play`, {
