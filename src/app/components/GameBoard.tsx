@@ -1,3 +1,22 @@
+// ╔════════════════════════════════════════════════════════════════════╗
+// ║  GAME BOARD — the screen where the game is actually played          ║
+// ║                                                                      ║
+// ║  Shows: round counter, both players' scores, the prize card, the    ║
+// ║  battle area (your card vs theirs), your hand, and the popups.      ║
+// ║                                                                      ║
+// ║  It runs in two modes:                                              ║
+// ║   • BOT MODE   — everything happens on this device; the bot's       ║
+// ║                  moves come from botBrain.ts                        ║
+// ║   • MULTIPLAYER — the server is the referee; this screen asks it    ║
+// ║                  "anything new?" every 2 seconds (polling) and      ║
+// ║                  draws whatever the server says                     ║
+// ║                                                                      ║
+// ║  Map of this file:                                                  ║
+// ║   1. Card helpers (decks, shuffle)                                  ║
+// ║   2. State + server sync (polling, applyServerState)                ║
+// ║   3. Game actions (handlePlayCard, resolveRoundBot, nextRoundBot)   ║
+// ║   4. The visuals (header bar → battle area → hand → popups)         ║
+// ╚════════════════════════════════════════════════════════════════════╝
 import { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
 import { FancyButton } from "./FancyButton";
@@ -36,6 +55,16 @@ function generatePlayerDeck(playerNumber: 1 | 2): Card[] {
   }));
 }
 
+// Fisher-Yates shuffle — every ordering equally likely
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function generatePrizeDeck(): Card[] {
   const hearts = ranks.map((rank, index) => ({
     rank,
@@ -47,7 +76,7 @@ function generatePrizeDeck(): Card[] {
     suit: "diamonds" as const,
     value: index + 1,
   }));
-  return [...hearts, ...diamonds].sort(() => Math.random() - 0.5);
+  return shuffle([...hearts, ...diamonds]);
 }
 
 type GamePhase = "select" | "waiting" | "reveal" | "nextRound" | "game_over";
@@ -94,6 +123,10 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
   const handScrollRef = useRef<HTMLDivElement>(null);
   // Preserve final scores so they survive server state wipe on game finish
   const finalScoresRef = useRef<{ player: number; opponent: number } | null>(null);
+  // Card we just played that the server may not know about yet.
+  // Stops a stale poll response from un-playing our card (which would let
+  // the player play twice in one round). Cleared once the server confirms.
+  const pendingPlayRef = useRef<{ card: Card; round: number } | null>(null);
 
   // ── ON GAME START: seed botBrain with player profile + global priors ───────
   useEffect(() => {
@@ -155,8 +188,9 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     return () => { cancelled = true; };
   }, [gameCode, isBotMode]);
 
-  // Helper: apply server state to all local state (multiplayer only)
-  const applyServerState = (data: any) => {
+  // Helper: the parts of server state that are always safe to apply
+  // (round number, prize, scores, phase, last-round banner)
+  const applyServerSharedState = (data: any) => {
     setCurrentRound(data.currentRound);
     setCurrentPrize(data.currentPrize);
     setCarriedOverPrizes(data.carriedOverPrizes || []);
@@ -166,19 +200,7 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     const myWonCards  = playerNumber === 1 ? p1WonCards : p2WonCards;
     const oppWonCards = playerNumber === 1 ? p2WonCards : p1WonCards;
 
-    if (playerNumber === 1) {
-      setPlayerHand(data.player1Hand ?? []);
-      setOpponentHand(data.player2Hand ?? []);
-      setPlayerPlayedCard(data.player1Card);
-      setOpponentPlayedCard(data.player2Card);
-    } else {
-      setPlayerHand(data.player2Hand ?? []);
-      setOpponentHand(data.player1Hand ?? []);
-      setPlayerPlayedCard(data.player2Card);
-      setOpponentPlayedCard(data.player1Card);
-    }
-
-    // Snapshot scores before server can wipe wonCards in finished state
+    // Snapshot scores so the Game Over screen always has the final numbers
     const newPlayerScore  = myWonCards.reduce((s: number, c: Card) => s + c.value, 0);
     const newOpponentScore = oppWonCards.reduce((s: number, c: Card) => s + c.value, 0);
     if (newPlayerScore > 0 || newOpponentScore > 0) {
@@ -188,7 +210,7 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     setPlayerWonCards(myWonCards);
     setOpponentWonCards(oppWonCards);
 
-    setPhase(data.phase);
+    setPhase(data.phase === "game_over" ? "reveal" : data.phase);
     if (data.status === "finished") setGameOver(true);
 
     if (data.lastRoundResult) {
@@ -206,6 +228,43 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     } else {
       setLastRound(null);
     }
+  };
+
+  // Helper: apply full server state to local state (multiplayer only)
+  const applyServerState = (data: any) => {
+    const serverMyCard: Card | null =
+      playerNumber === 1 ? data.player1Card : data.player2Card;
+    const serverOppCard: Card | null =
+      playerNumber === 1 ? data.player2Card : data.player1Card;
+    let myHand: Card[] =
+      (playerNumber === 1 ? data.player1Hand : data.player2Hand) ?? [];
+
+    // Pending-play guard: if we just played a card but this poll response
+    // was computed before the server saw it, don't revert our play.
+    const pending = pendingPlayRef.current;
+    if (pending) {
+      const serverConfirmed = serverMyCard?.rank === pending.card.rank;
+      const roundMovedOn = data.currentRound !== pending.round || data.phase !== "select";
+      if (serverConfirmed || roundMovedOn) {
+        pendingPlayRef.current = null; // server caught up — trust it fully
+      } else if (!serverMyCard) {
+        // Stale response: keep showing our locked-in card, and keep the
+        // played card out of the hand so it can't be selected again.
+        myHand = myHand.filter((c) => c.rank !== pending.card.rank);
+        setPlayerHand(myHand);
+        setOpponentHand((playerNumber === 1 ? data.player2Hand : data.player1Hand) ?? []);
+        setOpponentPlayedCard(serverOppCard);
+        // NOTE: playerPlayedCard intentionally left as-is (still locked in)
+        applyServerSharedState(data);
+        return;
+      }
+    }
+
+    setPlayerHand(myHand);
+    setOpponentHand((playerNumber === 1 ? data.player2Hand : data.player1Hand) ?? []);
+    setPlayerPlayedCard(serverMyCard);
+    setOpponentPlayedCard(serverOppCard);
+    applyServerSharedState(data);
   };
 
   // Polling for Multiplayer Mode (unchanged interval, but uses shared helper)
@@ -265,27 +324,17 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     return () => clearTimeout(timer);
   }, [serverReady, isBotMode, gameCode]);
 
-  // Handle Automatic Next Round Transition in Multiplayer
+  // Multiplayer: 4 seconds after a reveal, move the game forward.
+  // Both players' apps call the server; it safely ignores the second call.
+  // After round 13 we show the Game Over screen immediately (the server
+  // call also marks the game "finished" so a page refresh still shows it).
   useEffect(() => {
     if (!isBotMode && phase === "reveal") {
       const timer = setTimeout(async () => {
         if (!gameCode) return;
-        // Round 13 is the last — end locally instead of asking server for next round
-        if (currentRound >= 13) {
-          const saved = finalScoresRef.current;
-          if (saved) {
-            setPlayerWonCards(prev =>
-              prev.reduce((s, c) => s + c.value, 0) === 0 && saved.player > 0
-                ? prev  // already have cards, keep them
-                : prev
-            );
-          }
-          setGameOver(true);
-          return;
-        }
+        if (currentRound >= 13) setGameOver(true);
         try {
-          const url = `/game/next-round`;
-          await apiFetch(url, {
+          await apiFetch(`/game/next-round`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ gameCode })
@@ -369,19 +418,32 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
         resolveRoundBot(selectedCard, randomOpponentCard);
       }, delay);
     } else {
+      // Optimistically lock the card in, and remember it in pendingPlayRef so
+      // a stale poll response can't un-play it (see applyServerState).
       setPlayerPlayedCard(selectedCard);
       setSelectedCard(null);
+      pendingPlayRef.current = { card: selectedCard, round: currentRound };
       try {
         if (!gameCode) return;
-        await apiFetch(`/game/play`, {
+        const res = await apiFetch(`/game/play`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ gameCode, playerNumber, card: selectedCard })
         });
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          // "Already played" means the server has a card for us — keep it locked.
+          if (!err?.error?.includes("Already played")) {
+            console.error("Play rejected:", err?.error);
+            pendingPlayRef.current = null;
+            setPlayerPlayedCard(null);
+          }
+        }
       } catch (e) {
         console.error("Play error", e);
+        pendingPlayRef.current = null;
         setPlayerPlayedCard(null);
       }
     }

@@ -1,3 +1,15 @@
+// ╔════════════════════════════════════════════════════════════════════╗
+// ║  APP — the traffic controller                                       ║
+// ║                                                                      ║
+// ║  Decides which screen is showing. The journey is:                   ║
+// ║                                                                      ║
+// ║   lobby ──► name-entry ──► waiting ──► playing                      ║
+// ║   (menu)   (type name)    (share code) (GameBoard)                  ║
+// ║                                                                      ║
+// ║  "Play vs Bot" skips the waiting room and goes straight to playing. ║
+// ║  There are almost no visuals in this file — each screen's look      ║
+// ║  lives in its own file under components/.                           ║
+// ╚════════════════════════════════════════════════════════════════════╝
 import { useState, useEffect } from "react";
 import { GameLobby } from "./components/GameLobby";
 import { WaitingRoom } from "./components/WaitingRoom";

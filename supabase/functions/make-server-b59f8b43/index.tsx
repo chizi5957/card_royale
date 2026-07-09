@@ -1,6 +1,23 @@
+// ╔════════════════════════════════════════════════════════════════════╗
+// ║  THE BIDDING WAR — GAME SERVER (Supabase Edge Function)             ║
+// ║                                                                      ║
+// ║  This is the "referee" for 2-player online games.                   ║
+// ║  Both players' apps talk to this server. It remembers the game      ║
+// ║  state (whose turn, cards left, scores) in a small database table.  ║
+// ║                                                                      ║
+// ║  Bot games do NOT use this file — they run entirely on the phone.   ║
+// ║                                                                      ║
+// ║  Routes (what the app can ask the server to do):                    ║
+// ║    POST /game/create      → start a new game, get a 6-letter code   ║
+// ║    POST /game/join        → second player joins with that code      ║
+// ║    POST /game/play        → a player secretly plays one card        ║
+// ║    POST /game/next-round  → advance after both cards are revealed   ║
+// ║    GET  /game/:code       → read the current game state (polling)   ║
+// ╚════════════════════════════════════════════════════════════════════╝
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
+import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 import * as kv from "./kv_store.tsx";
 
 // ── App setup ────────────────────────────────────────────────
@@ -35,6 +52,16 @@ function playerDeck(n: 1 | 2): Card[] {
   return RANKS.map((rank, i) => ({ rank, suit, value: i + 1 }));
 }
 
+// Fisher-Yates shuffle — every ordering equally likely
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function prizeDeck(): Card[] {
   const h: Card[] = RANKS.map((r, i) => ({
     rank: r,
@@ -46,7 +73,7 @@ function prizeDeck(): Card[] {
     suit: "diamonds" as const,
     value: i + 1,
   }));
-  return [...h, ...d].sort(() => Math.random() - 0.5);
+  return shuffle([...h, ...d]);
 }
 
 interface GameState {
@@ -70,6 +97,55 @@ interface GameState {
     winner: 1 | 2 | 0;
   } | null;
   createdAt: number;
+  // Version counter for optimistic locking (see atomicUpdate below)
+  version?: number;
+}
+
+// ── Atomic update helper ─────────────────────────────────────
+// PROBLEM: both players often act at the exact same moment (they both
+// bid a card each round). If two requests read the game, change it, and
+// write it back at the same time, the second write silently erases the
+// first one ("lost update") and the game hangs.
+//
+// SOLUTION: every game state carries a version number. We only write if
+// the version in the database is still the one we read (compare-and-set).
+// If someone else got there first, we re-read and try again.
+const db = () =>
+  createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+async function atomicUpdate(
+  key: string,
+  mutate: (gs: GameState) => { error?: string; status?: number } | void,
+): Promise<{ gs?: GameState; error?: string; status?: number }> {
+  const supabase = db();
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const gs = (await kv.get(key)) as GameState | null;
+    if (!gs) return { error: "Game not found", status: 404 };
+
+    const expectedVersion = gs.version ?? 0;
+    const result = mutate(gs);
+    if (result?.error) return { error: result.error, status: result.status ?? 400 };
+
+    gs.version = expectedVersion + 1;
+
+    // Write only if nobody else changed the row since we read it
+    const { data, error } = await supabase
+      .from("kv_store_01880f2a")
+      .update({ value: gs })
+      .eq("key", key)
+      .filter("value->>version", "eq", String(expectedVersion))
+      .select("key");
+
+    if (error) return { error: error.message, status: 500 };
+    if (data && data.length > 0) return { gs }; // success
+
+    // Conflict — someone updated first. Small backoff, then retry.
+    await new Promise((r) => setTimeout(r, 40 + Math.random() * 80));
+  }
+  return { error: "Server busy, please retry", status: 409 };
 }
 
 // ── Routes ───────────────────────────────────────────────────
@@ -77,14 +153,10 @@ interface GameState {
 // Setup - check and initialize database
 app.get(`${PREFIX}/init`, async (c) => {
   try {
-    const { createClient } = await import("jsr:@supabase/supabase-js@2.49.8");
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
+    const supabase = db();
 
     // Test if table exists
-    const { error: testError, data } = await supabase
+    const { error: testError } = await supabase
       .from("kv_store_01880f2a")
       .select("key")
       .limit(1);
@@ -156,6 +228,7 @@ app.post(`${PREFIX}/game/create`, async (c) => {
       phase: "select",
       lastRoundResult: null,
       createdAt: Date.now(),
+      version: 0,
     };
 
     await kv.set(`game_${gameCode}`, state);
@@ -172,14 +245,13 @@ app.post(`${PREFIX}/game/join`, async (c) => {
     const { gameCode } = await c.req.json();
     if (!gameCode) return c.json({ error: "Game code required" }, 400);
 
-    const gs = (await kv.get(`game_${gameCode}`)) as GameState | null;
-    if (!gs) return c.json({ error: "Game not found" }, 404);
-    if (gs.players.length >= 2)
-      return c.json({ error: "Game is full" }, 400);
+    const result = await atomicUpdate(`game_${gameCode}`, (gs) => {
+      if (gs.players.length >= 2) return { error: "Game is full" };
+      gs.players.push({ id: "p2", number: 2, joinedAt: Date.now() });
+      gs.status = "playing";
+    });
 
-    gs.players.push({ id: "p2", number: 2, joinedAt: Date.now() });
-    gs.status = "playing";
-    await kv.set(`game_${gameCode}`, gs);
+    if (result.error) return c.json({ error: result.error }, result.status as any);
     return c.json({ success: true, playerNumber: 2 });
   } catch (err) {
     console.log("Error in /game/join:", err);
@@ -187,61 +259,70 @@ app.post(`${PREFIX}/game/join`, async (c) => {
   }
 });
 
-// Play card
+// Play card — each player secretly plays one card per round.
+// When the second card arrives, the round is resolved right here.
 app.post(`${PREFIX}/game/play`, async (c) => {
   try {
     const { gameCode, playerNumber, card } = await c.req.json();
     if (!gameCode || !playerNumber || !card)
       return c.json({ error: "Missing required fields" }, 400);
 
-    const gs = (await kv.get(`game_${gameCode}`)) as GameState | null;
-    if (!gs) return c.json({ error: "Game not found" }, 404);
-    if (gs.phase !== "select")
-      return c.json({ error: "Not select phase" }, 400);
+    const result = await atomicUpdate(`game_${gameCode}`, (gs) => {
+      if (gs.phase !== "select") return { error: "Not select phase" };
 
-    if (playerNumber === 1) {
-      gs.player1Card = card;
-      gs.player1Hand = gs.player1Hand.filter(
-        (ci: Card) => ci.rank !== card.rank,
-      );
-    } else {
-      gs.player2Card = card;
-      gs.player2Hand = gs.player2Hand.filter(
-        (ci: Card) => ci.rank !== card.rank,
-      );
-    }
+      const isP1 = playerNumber === 1;
 
-    if (gs.player1Card && gs.player2Card) {
-      gs.phase = "reveal";
-      const p1 = gs.player1Card.value;
-      const p2 = gs.player2Card.value;
-      const cp = gs.currentPrize;
-      const prizes = cp
-        ? [cp, ...gs.carriedOverPrizes]
-        : [...gs.carriedOverPrizes];
+      // Guard 1: you can only play once per round
+      if (isP1 ? gs.player1Card : gs.player2Card)
+        return { error: "Already played this round" };
 
-      let winner: 0 | 1 | 2 = 0;
-      if (p1 > p2) {
-        winner = 1;
-        gs.player1WonCards = [...gs.player1WonCards, ...prizes];
-        gs.carriedOverPrizes = [];
-      } else if (p2 > p1) {
-        winner = 2;
-        gs.player2WonCards = [...gs.player2WonCards, ...prizes];
-        gs.carriedOverPrizes = [];
+      // Guard 2: the card must actually be in your hand
+      const hand = isP1 ? gs.player1Hand : gs.player2Hand;
+      const inHand = hand.some((ci: Card) => ci.rank === card.rank);
+      if (!inHand) return { error: "Card not in hand" };
+
+      if (isP1) {
+        gs.player1Card = card;
+        gs.player1Hand = gs.player1Hand.filter((ci: Card) => ci.rank !== card.rank);
       } else {
-        gs.carriedOverPrizes = prizes;
+        gs.player2Card = card;
+        gs.player2Hand = gs.player2Hand.filter((ci: Card) => ci.rank !== card.rank);
       }
 
-      gs.lastRoundResult = {
-        player1Card: gs.player1Card,
-        player2Card: gs.player2Card,
-        prize: cp || { rank: "X", suit: "hearts", value: 0 },
-        winner,
-      };
-    }
+      // Both cards down? Resolve the round: higher card takes the prize(s).
+      if (gs.player1Card && gs.player2Card) {
+        gs.phase = "reveal";
+        const p1 = gs.player1Card.value;
+        const p2 = gs.player2Card.value;
+        const cp = gs.currentPrize;
+        const prizes = cp
+          ? [cp, ...gs.carriedOverPrizes]
+          : [...gs.carriedOverPrizes];
 
-    await kv.set(`game_${gameCode}`, gs);
+        let winner: 0 | 1 | 2 = 0;
+        if (p1 > p2) {
+          winner = 1;
+          gs.player1WonCards = [...gs.player1WonCards, ...prizes];
+          gs.carriedOverPrizes = [];
+        } else if (p2 > p1) {
+          winner = 2;
+          gs.player2WonCards = [...gs.player2WonCards, ...prizes];
+          gs.carriedOverPrizes = [];
+        } else {
+          // Tie — prize carries over to next round's pot
+          gs.carriedOverPrizes = prizes;
+        }
+
+        gs.lastRoundResult = {
+          player1Card: gs.player1Card,
+          player2Card: gs.player2Card,
+          prize: cp || { rank: "X", suit: "hearts", value: 0 },
+          winner,
+        };
+      }
+    });
+
+    if (result.error) return c.json({ error: result.error }, result.status as any);
     return c.json({ success: true });
   } catch (err) {
     console.log("Error in /game/play:", err);
@@ -249,28 +330,29 @@ app.post(`${PREFIX}/game/play`, async (c) => {
   }
 });
 
-// Next round
+// Next round — called by clients ~4s after a reveal.
+// Both clients call it; the version check makes the second call a no-op.
 app.post(`${PREFIX}/game/next-round`, async (c) => {
   try {
     const { gameCode } = await c.req.json();
     if (!gameCode) return c.json({ error: "Game code required" }, 400);
 
-    const gs = (await kv.get(`game_${gameCode}`)) as GameState | null;
-    if (!gs) return c.json({ error: "Game not found" }, 404);
-    if (gs.phase !== "reveal") return c.json({ success: true });
+    const result = await atomicUpdate(`game_${gameCode}`, (gs) => {
+      if (gs.phase !== "reveal") return; // already advanced — fine
 
-    if (gs.currentRound >= 13) {
-      gs.phase = "game_over";
-      gs.status = "finished";
-    } else {
-      gs.currentRound += 1;
-      gs.currentPrize = gs.prizeDeck.shift() || null;
-      gs.player1Card = null;
-      gs.player2Card = null;
-      gs.phase = "select";
-    }
+      if (gs.currentRound >= 13) {
+        gs.phase = "game_over";
+        gs.status = "finished";
+      } else {
+        gs.currentRound += 1;
+        gs.currentPrize = gs.prizeDeck.shift() || null;
+        gs.player1Card = null;
+        gs.player2Card = null;
+        gs.phase = "select";
+      }
+    });
 
-    await kv.set(`game_${gameCode}`, gs);
+    if (result.error) return c.json({ error: result.error }, result.status as any);
     return c.json({ success: true });
   } catch (err) {
     console.log("Error in /game/next-round:", err);
