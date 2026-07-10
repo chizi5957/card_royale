@@ -1,14 +1,41 @@
-// Card Battle — Advanced Bot Brain (TypeScript port)
-// Multi-phase adaptive strategy with opponent modeling and pattern recognition.
+// ╔════════════════════════════════════════════════════════════════════╗
+// ║  BOT BRAIN — how the computer opponent decides which card to play   ║
+// ║                                                                      ║
+// ║  This game is "Goofspiel" (Game Of Pure Strategy), a classic from   ║
+// ║  game theory. The bot plays like a seasoned human, using ONLY       ║
+// ║  information a human opponent would also have:                      ║
+// ║    • its own hand                                                   ║
+// ║    • which cards the player has left (both hands start known)      ║
+// ║    • prizes revealed so far, and the current pot                   ║
+// ║    • the player's PAST bids (revealed after each round)            ║
+// ║                                                                      ║
+// ║  It NEVER sees the card the player picked this round. No cheating. ║
+// ║                                                                      ║
+// ║  The strategy, in plain English:                                    ║
+// ║   1. RANK-MATCHING — a card is worth what it can win later. The    ║
+// ║      King is saved for the biggest pot still expected to appear;   ║
+// ║      mid cards fight for mid pots. (No more King on a 9.)          ║
+// ║   2. OPPONENT MODEL — after every round the bot compares what you  ║
+// ║      bid with what a "textbook" player would have bid, learns your ║
+// ║      habit (overbidder? underbidder? dumper?), and predicts your   ║
+// ║      next bid.                                                     ║
+// ║   3. CONTEST OR SACRIFICE — beat your predicted bid by the         ║
+// ║      thinnest possible margin, or throw its cheapest card away    ║
+// ║      and save strength. Never overpay.                             ║
+// ║   4. CONTROLLED RANDOMNESS — occasionally shifts its bid so you    ║
+// ║      can't reverse-engineer the pattern and exploit it.            ║
+// ╚════════════════════════════════════════════════════════════════════╝
 
-import type { GameRecord } from "../lib/mlTypes";
-import type { AggregatedPlayerProfile, GlobalPriors } from "../lib/mlTypes";
+import type {
+  AggregatedPlayerProfile,
+  GlobalPriors,
+  GameRecord,
+  StrategyLabel,
+} from "../lib/mlTypes";
 
-export const BOT_VERSION = "advanced-ts-v1";
+export const BOT_VERSION = "gops-v2";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Card type (matches GameBoard.tsx)
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Shared types (GameBoard.tsx and mlTypes.ts import these) ─────────────
 
 export interface Card {
   rank: string;
@@ -16,21 +43,13 @@ export interface Card {
   value: number; // A=1 .. K=13
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RoundResult — matches GameBoard.tsx recordRound call
-// ─────────────────────────────────────────────────────────────────────────────
-
 export interface RoundResult {
   round: number;
-  prizeValue: number;
+  prizeValue: number;          // total points at stake that round (incl. carryover)
   botBid: Card;
   humanBid: Card;
   result: "human" | "bot" | "tie";
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// selectCard input — matches GameBoard.tsx selectCard call
-// ─────────────────────────────────────────────────────────────────────────────
 
 export interface SelectCardInput {
   botHand: Card[];
@@ -42,368 +61,6 @@ export interface SelectCardInput {
   roundNumber: number;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Prize Bracket Map
-// ─────────────────────────────────────────────────────────────────────────────
-
-interface Bracket { low: number; mid: number; high: number; }
-
-const PRIZE_BRACKETS: Array<[number, number, Bracket]> = [
-  [1,  3,  { low: 1,  mid: 2,  high: 4  }],
-  [4,  5,  { low: 3,  mid: 5,  high: 7  }],
-  [6,  9,  { low: 4,  mid: 7,  high: 11 }],
-  [10, 12, { low: 8,  mid: 10, high: 13 }],
-  [13, 13, { low: 11, mid: 12, high: 13 }],
-];
-
-function getBracket(prizeValue: number): Bracket {
-  for (const [lo, hi, b] of PRIZE_BRACKETS) {
-    if (prizeValue >= lo && prizeValue <= hi) return b;
-  }
-  return { low: 1, mid: 7, high: 13 };
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Tie Chain Tracker
-// ─────────────────────────────────────────────────────────────────────────────
-
-interface TieChainState {
-  active: boolean;
-  consecutiveTies: number;
-  potValue: number;
-  botCardsSpent: number[];
-  oppCardsSpent: number[];
-  oppConfirmedMin: number;
-}
-
-class TieChainTracker {
-  state: TieChainState = this._fresh();
-
-  private _fresh(): TieChainState {
-    return { active: false, consecutiveTies: 0, potValue: 0, botCardsSpent: [], oppCardsSpent: [], oppConfirmedMin: 0 };
-  }
-
-  reset() { this.state = this._fresh(); }
-
-  onRoundResult(result: string, _prizeValue: number, botBid: number, oppBid: number, potValue: number) {
-    if (result === "tie") {
-      if (!this.state.active) {
-        this.state.active = true;
-        this.state.consecutiveTies = 1;
-        this.state.potValue = potValue;
-      } else {
-        this.state.consecutiveTies++;
-        this.state.potValue = potValue;
-      }
-      this.state.botCardsSpent.push(botBid);
-      this.state.oppCardsSpent.push(oppBid);
-      this.state.oppConfirmedMin = Math.max(this.state.oppConfirmedMin, oppBid);
-    } else {
-      this.state = this._fresh();
-    }
-  }
-
-  isBotDominated(botHandMax: number): boolean {
-    return this.state.active && this.state.oppConfirmedMin >= botHandMax;
-  }
-
-  computeExitDecision(botHand: number[]): [number, string, string] {
-    const sorted = [...botHand].sort((a, b) => a - b);
-    const exitCard = sorted[0];
-    return [exitCard, "tie_chain_dominated_exit",
-      `TIE CHAIN EXIT: dominated (opp confirmed >= ${this.state.oppConfirmedMin}, bot max ${Math.max(...botHand)}). Conceding with ${exitCard}.`];
-  }
-
-  shouldContinueChain(botHandMax: number, potValue: number, remainingPrizePool: number): boolean {
-    const edge = botHandMax > this.state.oppConfirmedMin;
-    const worth = potValue >= 0.25 * remainingPrizePool;
-    return edge && worth;
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Opponent Model
-// ─────────────────────────────────────────────────────────────────────────────
-
-const enum StrategyArchetype { AGGRESSOR, CONSERVATIONIST, REACTIVE, CALCULATOR, CHAOTIC, ADAPTIVE }
-
-class OpponentModel {
-  bidByBucket: Record<string, number[]> = {};
-  bidByExactPrize: Record<number, number[]> = {};
-  responseToBotBid: Record<number, number[]> = {};
-  postLossBids: number[] = [];
-  postWinBids: number[] = [];
-  highCardsUsed: Set<number> = new Set();
-  allPlayed: number[] = [];
-  bracketOffset = 0;
-  offsetWeight = 0;
-  archetype: StrategyArchetype = StrategyArchetype.CHAOTIC;
-  archetypeConfidence = 0;
-  isCounteringBot = false;
-  counterEvidence = 0;
-
-  record(prizeValue: number, opponentBid: number, botBid: number, lastResult: string | null) {
-    const br = getBracket(prizeValue);
-    const key = `${br.low}-${br.high}`;
-    const deviation = opponentBid - br.mid;
-
-    if (!this.bidByBucket[key]) this.bidByBucket[key] = [];
-    this.bidByBucket[key].push(opponentBid);
-    if (!this.bidByExactPrize[prizeValue]) this.bidByExactPrize[prizeValue] = [];
-    this.bidByExactPrize[prizeValue].push(opponentBid);
-    if (!this.responseToBotBid[botBid]) this.responseToBotBid[botBid] = [];
-    this.responseToBotBid[botBid].push(opponentBid);
-    this.allPlayed.push(opponentBid);
-    if (opponentBid >= 10) this.highCardsUsed.add(opponentBid);
-
-    if (lastResult === "opponent") this.postWinBids.push(opponentBid);
-    else if (lastResult === "bot") this.postLossBids.push(opponentBid);
-
-    const rw = 1.0 + this.allPlayed.length / 13.0;
-    this.bracketOffset = (this.bracketOffset * this.offsetWeight + deviation * rw) / (this.offsetWeight + rw);
-    this.offsetWeight += rw;
-
-    const recent = this.allPlayed.slice(-3);
-    if (recent.length >= 3) {
-      const botKeys = Object.keys(this.responseToBotBid).map(Number).slice(-3);
-      if (botKeys.length > 0) {
-        const avgBot = botKeys.reduce((s, v) => s + v, 0) / botKeys.length;
-        const avgOpp = recent.reduce((s, v) => s + v, 0) / recent.length;
-        if (avgOpp - avgBot >= 1.0 && avgOpp - avgBot <= 2.5) this.counterEvidence++;
-        else this.counterEvidence = Math.max(0, this.counterEvidence - 1);
-      }
-      this.isCounteringBot = this.counterEvidence >= 3;
-    }
-
-    this._classify();
-  }
-
-  private _classify() {
-    const n = this.allPlayed.length;
-    if (n < 3) { this.archetype = StrategyArchetype.CHAOTIC; this.archetypeConfidence = 0; return; }
-    const consistency = this._offsetConsistency();
-    if (this.bracketOffset > 2.0 && consistency > 0.6) {
-      this.archetype = StrategyArchetype.AGGRESSOR; this.archetypeConfidence = Math.min(consistency, 0.95);
-    } else if (this.bracketOffset < -2.0 && consistency > 0.6) {
-      this.archetype = StrategyArchetype.CONSERVATIONIST; this.archetypeConfidence = Math.min(consistency, 0.95);
-    } else if (this._reactiveScore() > 0.5) {
-      this.archetype = StrategyArchetype.REACTIVE; this.archetypeConfidence = this._reactiveScore();
-    } else if (consistency > 0.7) {
-      this.archetype = StrategyArchetype.CALCULATOR; this.archetypeConfidence = consistency;
-    } else if (consistency < 0.3) {
-      this.archetype = StrategyArchetype.CHAOTIC; this.archetypeConfidence = 0.4;
-    } else {
-      this.archetype = StrategyArchetype.ADAPTIVE; this.archetypeConfidence = 0.5;
-    }
-  }
-
-  private _offsetConsistency(): number {
-    if (this.allPlayed.length < 3) return 0;
-    const offsets: number[] = [];
-    for (const [pv, bids] of Object.entries(this.bidByExactPrize)) {
-      const br = getBracket(Number(pv));
-      for (const b of bids) offsets.push(b - br.mid);
-    }
-    if (!offsets.length) return 0;
-    const mean = offsets.reduce((s, v) => s + v, 0) / offsets.length;
-    const variance = offsets.reduce((s, v) => s + (v - mean) ** 2, 0) / offsets.length;
-    return Math.max(0, 1 - variance / 25);
-  }
-
-  private _reactiveScore(): number {
-    const pairs: boolean[] = [];
-    for (const [bBid, oppBids] of Object.entries(this.responseToBotBid)) {
-      for (const ob of oppBids) pairs.push(Math.abs(ob - Number(bBid)) <= 2);
-    }
-    if (!pairs.length) return 0;
-    return pairs.filter(Boolean).length / pairs.length;
-  }
-
-  predictBid(prizeValue: number, lastBotBid: number | null, remainingCards: number[]): [number, number] {
-    const br = getBracket(prizeValue);
-    const key = `${br.low}-${br.high}`;
-    const exactBids = this.bidByExactPrize[prizeValue] ?? [];
-    const bucketBids = this.bidByBucket[key] ?? [];
-
-    const weightedAvg = (bids: number[]) => {
-      if (!bids.length) return br.mid;
-      const weights = bids.map((_, i) => 1 + i * 0.3);
-      const tw = weights.reduce((s, w) => s + w, 0);
-      return bids.reduce((s, b, i) => s + b * weights[i], 0) / tw;
-    };
-
-    let base: number;
-    if (exactBids.length && bucketBids.length) base = (weightedAvg(exactBids) * 2 + weightedAvg(bucketBids)) / 3;
-    else if (exactBids.length) base = weightedAvg(exactBids);
-    else if (bucketBids.length) base = weightedAvg(bucketBids);
-    else base = br.mid + this.bracketOffset;
-
-    if (this.archetype === StrategyArchetype.REACTIVE && lastBotBid !== null) {
-      const reactivePred = lastBotBid + this.bracketOffset * 0.5;
-      base = base * 0.4 + reactivePred * 0.6;
-    }
-
-    if (this.postLossBids.length >= 2) {
-      const recent3 = this.postLossBids.slice(-3);
-      const avgPostLoss = recent3.reduce((s, v) => s + v, 0) / recent3.length;
-      const avgNormal = this.allPlayed.reduce((s, v) => s + v, 0) / this.allPlayed.length;
-      const escalation = Math.max(0, avgPostLoss - avgNormal);
-      base += escalation * 0.5;
-    }
-
-    let predicted = Math.round(base);
-    predicted = Math.max(1, Math.min(13, predicted));
-    if (remainingCards.length && !remainingCards.includes(predicted)) {
-      predicted = remainingCards.reduce((best, c) => Math.abs(c - predicted) < Math.abs(best - predicted) ? c : best, remainingCards[0]);
-    }
-
-    const nEvidence = exactBids.length * 2 + bucketBids.length;
-    let rawConfidence = Math.min(0.9, nEvidence / 12);
-    if (this.isCounteringBot) rawConfidence *= 0.6;
-
-    return [predicted, rawConfidence];
-  }
-
-  get opponentHasKing(): boolean { return !this.highCardsUsed.has(13); }
-  get opponentHasQueen(): boolean { return !this.highCardsUsed.has(12); }
-
-  remainingEstimate(allCards: number[]): number[] {
-    const played = [...this.allPlayed];
-    const estimate: number[] = [];
-    for (const c of allCards) {
-      const idx = played.indexOf(c);
-      if (idx !== -1) played.splice(idx, 1);
-      else estimate.push(c);
-    }
-    return estimate;
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Strategy helpers
-// ─────────────────────────────────────────────────────────────────────────────
-
-function pickNearest(hand: number[], target: number): number {
-  return hand.reduce((best, c) => Math.abs(c - target) < Math.abs(best - target) ? c : best, hand[0]);
-}
-
-function pickMinimumBeating(hand: number[], target: number): number | null {
-  const beaters = hand.filter(c => c > target);
-  return beaters.length ? Math.min(...beaters) : null;
-}
-
-function pickExactOrNearest(hand: number[], target: number): number {
-  return hand.includes(target) ? target : pickNearest(hand, target);
-}
-
-function strategySacrifice(hand: number[], _prizeValue: number, reason: string): [number, string, string] {
-  return [Math.min(...hand), "sacrifice", `Sacrificing on prize. Reason: ${reason}`];
-}
-
-function strategyCalibration(hand: number[], prizeValue: number, roundNumber: number): [number, string, string] {
-  const br = getBracket(prizeValue);
-  if (prizeValue >= 12) {
-    const card = pickExactOrNearest(hand, 9);
-    return [card, "calibration_high_prize", `Prize ${prizeValue} too valuable. Bidding near 9.`];
-  }
-  const target = Math.max(1, br.mid - 1);
-  const card = pickExactOrNearest(hand, target);
-  return [card, "calibration_probe", `Round ${roundNumber} calibration probe on prize ${prizeValue}.`];
-}
-
-function strategyBleed(hand: number[], prizeValue: number, opp: OpponentModel): [number, string, string] {
-  const likelyOverbid = opp.archetype === StrategyArchetype.AGGRESSOR
-    || opp.archetype === StrategyArchetype.CALCULATOR
-    || opp.bracketOffset > 1.5;
-  if (!likelyOverbid) return [0, "bleed_aborted", `Bleed aborted: opponent unlikely to commit high card.`];
-  return [Math.min(...hand), "bleed", `Bleed on prize ${prizeValue}.`];
-}
-
-function strategyThinMarginWin(hand: number[], prizeValue: number, predicted: number, confidence: number): [number, string, string] {
-  const margin = confidence >= 0.75 ? 1 : confidence >= 0.5 ? 2 : 3;
-  const target = Math.min(predicted + margin, 13);
-  let winner = pickMinimumBeating(hand, target - 1);
-  if (winner === null) winner = pickMinimumBeating(hand, predicted);
-  if (winner === null) return strategySacrifice(hand, prizeValue, "cannot beat prediction");
-  return [winner, "thin_margin_win", `Winning prize ${prizeValue} with thin margin. Predicted: ${predicted}, playing ${winner}.`];
-}
-
-function strategyEndgame(
-  hand: number[], opponentRemaining: number[], prizeValue: number, potValue: number,
-  botScore: number, opponentScore: number, roundsLeft: number, opp: OpponentModel
-): [number, string, string] {
-  if (potValue >= 12 || prizeValue >= 10) {
-    return [Math.max(...hand), "endgame_all_in", `Large pot/prize. All-in.`];
-  }
-  const botHasKing = hand.includes(13);
-  const botHasQueen = hand.includes(12);
-  if (botHasKing && !opp.opponentHasKing && roundsLeft > 1 && prizeValue >= 8 && botHasQueen) {
-    return [12, "tie_break_advantage", `Tie-break advantage. Playing Q to save K.`];
-  }
-  const lead = botScore - opponentScore;
-  if (lead > 0 && opponentRemaining.length > 0) {
-    const oppMax = Math.max(...opponentRemaining);
-    const winner = pickMinimumBeating(hand, oppMax);
-    if (winner !== null) return [winner, "endgame_protect_lead", `Protecting lead. Playing ${winner}.`];
-  }
-  return [Math.max(...hand), "endgame_contest", `Contesting in endgame.`];
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Anti-Exploit Layer
-// ─────────────────────────────────────────────────────────────────────────────
-
-class AntiExploitLayer {
-  roundsSincePatternBreak = 0;
-  consecutiveSameTactic = 0;
-  lastTactic = "";
-
-  apply(chosen: number, hand: number[], tactic: string, opponentCountering: boolean): [number, boolean] {
-    this.roundsSincePatternBreak++;
-    if (tactic === this.lastTactic) this.consecutiveSameTactic++;
-    else this.consecutiveSameTactic = 0;
-    this.lastTactic = tactic;
-
-    const shouldBreak = this.consecutiveSameTactic >= 4 || this.roundsSincePatternBreak >= 5 || opponentCountering;
-    if (shouldBreak) {
-      this.roundsSincePatternBreak = 0;
-      this.consecutiveSameTactic = 0;
-      const surprise = Math.random() < 0.5 ? Math.max(...hand) : Math.min(...hand);
-      if (surprise !== chosen) return [surprise, true];
-    }
-
-    const roll = Math.random();
-    if (roll < 0.70) return [chosen, false];
-    if (roll < 0.90) {
-      const delta = [-2, -1, 1, 2][Math.floor(Math.random() * 4)];
-      const nearest = pickNearest(hand, chosen + delta);
-      if (Math.abs(nearest - chosen) <= 3) return [nearest, nearest !== chosen];
-      return [chosen, false];
-    }
-    const surprise = chosen === Math.max(...hand) ? Math.min(...hand) : Math.max(...hand);
-    return [surprise, true];
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Dominance computation
-// ─────────────────────────────────────────────────────────────────────────────
-
-type DominanceState = "STRONG_ADVANTAGE" | "SLIGHT_ADVANTAGE" | "NEUTRAL" | "SLIGHT_DISADVANTAGE" | "STRONG_DISADVANTAGE";
-
-function computeDominance(botHighestPlayed: number, oppHighestPlayed: number, botHandMax: number, oppHandMaxEst: number, leadGap: number): DominanceState {
-  const composite = (botHighestPlayed - oppHighestPlayed) * 0.6 + (botHandMax - oppHandMaxEst) * 0.4 + leadGap * 0.2;
-  if (composite >= 4) return "STRONG_ADVANTAGE";
-  if (composite >= 1) return "SLIGHT_ADVANTAGE";
-  if (composite >= -1) return "NEUTRAL";
-  if (composite >= -4) return "SLIGHT_DISADVANTAGE";
-  return "STRONG_DISADVANTAGE";
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Round record — exported so mlTypes.ts can import it
-// ─────────────────────────────────────────────────────────────────────────────
-
 export interface RoundRecord {
   roundNumber: number;
   prizeValue: number;
@@ -414,222 +71,268 @@ export interface RoundRecord {
   tacticUsed: string;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Main BotBrain class
-// ─────────────────────────────────────────────────────────────────────────────
+const RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+
+function makeCard(value: number): Card {
+  return { rank: RANKS[value - 1], value };
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  The bot
+// ═══════════════════════════════════════════════════════════════════════
 
 export class BotBrain {
-  private static readonly ALL_CARDS = Array.from({ length: 13 }, (_, i) => i + 1);
-  private static readonly RANKS = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-
-  private opponentModel = new OpponentModel();
-  private antiExploit = new AntiExploitLayer();
-  private tieChain = new TieChainTracker();
+  // Full round-by-round log (also exported for ML after the game)
   private history: RoundRecord[] = [];
-  private botHighestPlayed = 0;
-  private oppHighestPlayed = 0;
-  private bleedExecuted = false;
-  private bleedRound: number | null = null;
-  private bleedSuccessful = false;
 
-  // ML instrumentation fields
-  private mlBracketOffsets: number[] = [];
-  private mlStrategyLabels: string[] = [];
-  private mlHighCardRounds = 0;
+  // Which prize cards (of the 26 in the deck) have been revealed.
+  // Keyed "suit:rank" so hearts-9 and diamonds-9 count separately.
+  private seenPrizes = new Set<string>();
+
+  // ── Opponent model ──────────────────────────────────────────────────
+  // offsetEma: how far above/below "textbook" the player usually bids.
+  //   +2 means they typically bid 2 ranks higher than a textbook player.
+  // absErrEma: how wrong our predictions have been (their consistency).
+  //   Low = predictable player, we can cut margins razor-thin.
+  private offsetEma = 0;
+  private absErrEma = 2;
+  private samples = 0;
+
+  // People treat pot sizes differently (fight the big ones, dump the small
+  // ones), so we ALSO learn a separate habit per pot size. "top" = the
+  // biggest pot still expected, "small" = pots worth ≤5, "mid" = the rest.
+  private bucketOffset: Record<string, number> = { small: 0, mid: 0, top: 0 };
+  private bucketSamples: Record<string, number> = { small: 0, mid: 0, top: 0 };
+
+  // What we predicted last round — checked against reality in recordRound
+  private lastPrediction: { fairTheirs: number; predicted: number; bucket: string } | null = null;
+  private lastTactic = "";
+
+  // ML bookkeeping
   private mlSacrificeCount = 0;
-  private globalPriors: GlobalPriors | null = null;
-  private playerProfile: AggregatedPlayerProfile | null = null;
+  private mlHighCardRounds: number[] = [];
+
+  // Priors loaded from storage (results of previous games vs this player)
+  private profile: AggregatedPlayerProfile | null = null;
+  private priors: GlobalPriors | null = null;
 
   reset() {
-    this.opponentModel = new OpponentModel();
-    this.antiExploit = new AntiExploitLayer();
-    this.tieChain = new TieChainTracker();
     this.history = [];
-    this.botHighestPlayed = 0;
-    this.oppHighestPlayed = 0;
-    this.bleedExecuted = false;
-    this.bleedRound = null;
-    this.bleedSuccessful = false;
-    this.mlBracketOffsets = [];
-    this.mlStrategyLabels = [];
-    this.mlHighCardRounds = 0;
+    this.seenPrizes = new Set();
+    this.offsetEma = 0;
+    this.absErrEma = 2;
+    this.samples = 0;
+    this.bucketOffset = { small: 0, mid: 0, top: 0 };
+    this.bucketSamples = { small: 0, mid: 0, top: 0 };
+    this.lastPrediction = null;
+    this.lastTactic = "";
     this.mlSacrificeCount = 0;
+    this.mlHighCardRounds = [];
   }
 
-  initializeWithProfile(profile: AggregatedPlayerProfile) {
-    this.playerProfile = profile;
-    if (profile.bracketOffset !== undefined) {
-      this.opponentModel.bracketOffset = profile.bracketOffset;
-      this.opponentModel.offsetWeight = 2;
+  initializeWithProfile(profile: AggregatedPlayerProfile | null) {
+    if (!profile) return;
+    this.profile = profile;
+    // Seed the model with this player's known habit — worth ~2 rounds of data
+    if (typeof profile.bracketOffset === "number") {
+      this.offsetEma = profile.bracketOffset;
+      this.samples = 2;
     }
   }
 
-  initializeWithGlobalPriors(priors: GlobalPriors) {
-    this.globalPriors = priors;
+  initializeWithGlobalPriors(priors: GlobalPriors | null) {
+    if (!priors) return;
+    this.priors = priors;
+    // Population-level habit — weakest prior, used only with no personal data
+    if (this.samples === 0 && typeof priors.populationBracketOffset === "number") {
+      this.offsetEma = priors.populationBracketOffset;
+      this.samples = 1;
+    }
   }
 
-  // Convert value to Card object
-  private makeCard(value: number): Card {
-    return { rank: BotBrain.RANKS[value - 1], value };
-  }
-
-  // ── Public selectCard ────────────────────────────────────────────────────
-
+  // ═════════════════════════════════════════════════════════════════════
+  //  selectCard — called once per round. Returns the bot's bid.
+  // ═════════════════════════════════════════════════════════════════════
   selectCard(input: SelectCardInput): Card {
-    const { botHand, humanCardsRemaining, currentPrize, carriedOverPrizes, botScore, humanScore, roundNumber } = input;
+    const { botHand, humanCardsRemaining, currentPrize, carriedOverPrizes, botScore, humanScore } = input;
     if (!botHand.length) throw new Error("Bot has no cards remaining.");
 
-    const prizeValue = currentPrize?.value ?? 1;
-    const carriedTotal = carriedOverPrizes.reduce((s, c) => s + c.value, 0);
-    const pot = carriedTotal + prizeValue;
+    // Remember every prize card we've now seen (for deck counting)
+    if (currentPrize) this.notePrize(currentPrize);
+    for (const p of carriedOverPrizes) this.notePrize(p);
 
-    const hand = botHand.map(c => c.value).sort((a, b) => a - b);
-    const oppRemaining = humanCardsRemaining.map(c => c.value);
-    const phase = this._getPhase(roundNumber);
-    const dominance = this._getDominance(hand, botScore, humanScore);
+    const myHand = botHand.map((c) => c.value).sort((a, b) => a - b);
+    const theirHand = humanCardsRemaining.map((c) => c.value).sort((a, b) => a - b);
+    const pot = (currentPrize?.value ?? 0) + carriedOverPrizes.reduce((s, c) => s + c.value, 0);
+    const roundsLeft = myHand.length;
 
-    const lastBotBid = this.history.length > 0 ? this.history[this.history.length - 1].botBid : null;
-    const [prediction, confidence] = this.opponentModel.predictBid(prizeValue, lastBotBid, oppRemaining);
+    // ── Forced move: one card left ─────────────────────────────────────
+    if (myHand.length === 1) return this.finish(myHand[0], "forced");
 
-    // ── Tie chain dominated exit ──────────────────────────────────────────
-    if (this.tieChain.state.active && this.tieChain.isBotDominated(Math.max(...hand))) {
-      const [card, tactic, reasoning] = this.tieChain.computeExitDecision(hand);
-      return this._finalize(card, tactic, hand, false);
+    // ── Game already decided? Stop spending good cards ────────────────
+    // The absolute most the trailing side could still score:
+    const maxFuturePoints = pot + (roundsLeft - 1) * 13;
+    if (botScore - humanScore > maxFuturePoints) {
+      return this.finish(myHand[0], "coast_won"); // victory locked — dump cheap
     }
 
-    // ── Tie chain continue/exit check ─────────────────────────────────────
-    if (this.tieChain.state.active && !this.tieChain.isBotDominated(Math.max(...hand))) {
-      const remaining = Math.max(1, 91 - botScore - humanScore);
-      if (!this.tieChain.shouldContinueChain(Math.max(...hand), this.tieChain.state.potValue, remaining)) {
-        return this._finalize(Math.min(...hand), "tie_chain_not_worth_it", hand, false);
+    // ── Total domination: every card we hold beats their best ─────────
+    if (theirHand.length > 0 && myHand[0] > theirHand[theirHand.length - 1]) {
+      return this.finish(myHand[0], "dominate"); // cheapest card still wins
+    }
+
+    // ── 1. RANK-MATCHING: which of my cards "deserves" this pot? ──────
+    // Count how many future pots are expected to be bigger than this one.
+    // If ~3 bigger pots are coming, this pot deserves my 4th-best card.
+    const unseen = this.unseenPrizeValues();
+    const biggerFrac = unseen.length > 0 ? unseen.filter((v) => v > pot).length / unseen.length : 0;
+    const expectedBigger = Math.round((roundsLeft - 1) * biggerFrac);
+    const fairMine = this.nthHighest(myHand, expectedBigger + 1);
+
+    // ── 2. PREDICT the player's bid (fair: uses only revealed info) ────
+    const fairTheirs = this.nthHighest(theirHand, Math.min(expectedBigger + 1, theirHand.length));
+    // Use the habit we've learned for THIS pot size once we have enough
+    // data on it; fall back to their overall habit before that.
+    const bucket = expectedBigger === 0 ? "top" : pot <= 5 ? "small" : "mid";
+    const offset =
+      this.bucketSamples[bucket] >= 2 ? this.bucketOffset[bucket] : this.offsetEma;
+    const predicted = this.nearestIn(theirHand, fairTheirs + offset);
+    this.lastPrediction = { fairTheirs, predicted, bucket };
+
+    // Safety margin: vs an erratic player leave room; vs a predictable
+    // player cut it thin. (absErrEma is our recent prediction error.)
+    // With no data yet, trust the textbook prediction — beating it by 1
+    // is exactly how a seasoned player opens.
+    const margin = this.samples < 3 ? 0 : Math.min(2, Math.round(this.absErrEma * 0.5));
+
+    // Cheapest card that beats their predicted bid (+ margin)
+    const cheapWin =
+      this.cheapestAbove(myHand, predicted + margin) ??
+      this.cheapestAbove(myHand, predicted);
+
+    // ── 3. CONTEST or SACRIFICE ────────────────────────────────────────
+    // How much over "fair" we're willing to pay, in card ranks:
+    const bigPot = pot >= 11 || expectedBigger === 0; // top-tier or tie-inflated pot
+    const behind = humanScore - botScore;
+    const desperate = roundsLeft <= 5 && behind > roundsLeft * 3;
+    const comfortable = botScore - humanScore > roundsLeft * 3;
+    let slack = bigPot ? 3 : 1;
+    if (desperate) slack += 1;      // behind late — take risks on big pots
+    if (comfortable) slack -= 1;    // ahead — never overpay, protect the lead
+    if (this.samples >= 4 && this.absErrEma <= 1) slack += 1; // we've decoded
+    // their pattern — paying one extra rank for a near-certain win is worth it
+
+    let choice: number;
+    let tactic: string;
+
+    if (cheapWin !== null && cheapWin <= pot) {
+      // Free money: winning card costs fewer ranks than the pot pays.
+      // This is how pros farm the small pots everyone else dumps on.
+      choice = cheapWin;
+      tactic = "cheap_steal";
+    } else if (cheapWin !== null && cheapWin <= fairMine + slack) {
+      // Fight for it, by the thinnest margin our prediction allows
+      choice = cheapWin;
+      tactic = "contest";
+    } else if (bigPot && cheapWin !== null && !comfortable) {
+      // Huge pot we can still win — pay up rather than let it go
+      choice = cheapWin;
+      tactic = "big_pot_reach";
+    } else if (this.absErrEma >= 2.2 && pot >= 5) {
+      // Erratic player — predictions are unreliable, so don't fold good
+      // pots to a coin flip. Play the "textbook" card for this pot:
+      // it wins whenever their random-ish bid lands below it.
+      choice = fairMine;
+      tactic = "fair_stand";
+    } else {
+      // Not worth it (or unwinnable) — throw the cheapest card away.
+      // Losing a small pot while they burn a big card is a WIN for us.
+      choice = myHand[0];
+      tactic = "sacrifice";
+    }
+
+    // ── 4. CONTROLLED RANDOMNESS (anti-exploitation) ──────────────────
+    // Sometimes shift one step so a sharp human can't map our pattern.
+    // Never in the endgame, never when it would turn a win into a loss.
+    if (myHand.length > 3 && Math.random() < 0.2) {
+      const idx = myHand.indexOf(choice);
+      if (tactic === "sacrifice" && idx + 1 < myHand.length && myHand[idx + 1] <= pot) {
+        // Occasionally bid one up on a "dump" round — snipes players who
+        // learned to grab our sacrificed pots with their second-lowest card
+        choice = myHand[idx + 1];
+        tactic = "sacrifice_snipe";
+      } else if (tactic === "contest" && idx + 1 < myHand.length && myHand[idx + 1] <= fairMine + slack + 1) {
+        choice = myHand[idx + 1]; // shift up, still efficient — never down below cheapWin
+        tactic = "contest_jitter";
       }
     }
 
-    // ── Endgame override ──────────────────────────────────────────────────
-    if (phase === "LOCKDOWN" || roundNumber >= 11) {
-      const [card, tactic] = strategyEndgame(hand, oppRemaining, prizeValue, pot, botScore, humanScore, 13 - roundNumber, this.opponentModel);
-      return this._finalize(card, tactic, hand, tactic !== "tie_chain_dominated_exit");
-    }
-
-    // ── Victory/loss shortcuts ────────────────────────────────────────────
-    const remainingPrizes = 91 - botScore - humanScore;
-    const lead = botScore - humanScore;
-    if (lead > remainingPrizes + pot) {
-      const [card, tactic] = strategySacrifice(hand, prizeValue, "victory locked");
-      return this._finalize(card, tactic, hand, false);
-    }
-    if (humanScore > 45) {
-      const [card, tactic] = strategySacrifice(hand, prizeValue, "mathematical loss");
-      return this._finalize(card, tactic, hand, false);
-    }
-
-    // ── Large pot ─────────────────────────────────────────────────────────
-    if (pot >= 12) {
-      const winner = pickMinimumBeating(hand, prediction);
-      const card = winner ?? Math.max(...hand);
-      return this._finalize(card, "large_pot_contest", hand, true);
-    }
-
-    // ── Calibration phase ─────────────────────────────────────────────────
-    if (phase === "CALIBRATION") {
-      const [card, tactic] = strategyCalibration(hand, prizeValue, roundNumber);
-      return this._finalize(card, tactic, hand, true);
-    }
-
-    // ── Bleed strategy ────────────────────────────────────────────────────
-    if (!this.bleedExecuted && prizeValue >= 10 && roundNumber <= 10
-        && hand.some(c => c >= 11) && this.opponentModel.opponentHasKing) {
-      const [card, tactic] = strategyBleed(hand, prizeValue, this.opponentModel);
-      if (tactic === "bleed") {
-        this.bleedExecuted = true;
-        this.bleedRound = roundNumber;
-        return this._finalize(card, tactic, hand, false);
-      }
-    }
-
-    // ── Dominance branch ──────────────────────────────────────────────────
-    const [card, tactic] = this._dominanceBranch(hand, prizeValue, dominance, prediction, confidence, pot);
-    return this._finalize(card, tactic, hand, true);
+    return this.finish(choice, tactic);
   }
 
-  // ── Public recordRound ───────────────────────────────────────────────────
-
+  // ═════════════════════════════════════════════════════════════════════
+  //  recordRound — called after each reveal. This is where learning happens.
+  // ═════════════════════════════════════════════════════════════════════
   recordRound(r: RoundResult) {
-    const prizeValue = r.prizeValue;
-    const botBid = r.botBid.value;
-    const humanBid = r.humanBid.value;
-    const result = r.result; // "human" | "bot" | "tie"
-    // Map to internal result: "bot" means bot won
-    const internalResult = result; // same naming works for our internal use
-
-    this.opponentModel.record(
-      prizeValue,
-      humanBid,
-      botBid,
-      this.history.length > 0 ? this.history[this.history.length - 1].result : null
-    );
-
-    this.botHighestPlayed = Math.max(this.botHighestPlayed, botBid);
-    this.oppHighestPlayed = Math.max(this.oppHighestPlayed, humanBid);
-
-    // Tie chain: map result to "tie" or not
-    const tcResult = result === "tie" ? "tie" : "not_tie";
-    this.tieChain.onRoundResult(
-      tcResult,
-      prizeValue,
-      botBid,
-      humanBid,
-      prizeValue // pot value approximation; carried prizes handled in selectCard
-    );
-
-    if (this.bleedExecuted && this.bleedRound === r.round && !this.bleedSuccessful) {
-      this.bleedSuccessful = humanBid >= 10;
-    }
-
-    // ML tracking
-    const br = getBracket(prizeValue);
-    this.mlBracketOffsets.push(humanBid - br.mid);
-    if (humanBid >= 10) this.mlHighCardRounds++;
-    if (result === "bot" && botBid <= 3) this.mlSacrificeCount++;
-
     this.history.push({
       roundNumber: r.round,
-      prizeValue,
-      botBid,
-      humanBid,
-      result: result === "tie" ? "tie" : result === "bot" ? "bot" : "human",
-      potValue: prizeValue,
-      tacticUsed: "",
+      prizeValue: r.prizeValue,
+      botBid: r.botBid.value,
+      humanBid: r.humanBid.value,
+      result: r.result,
+      potValue: r.prizeValue,
+      tacticUsed: this.lastTactic,
     });
+
+    // Update the opponent model with what they ACTUALLY bid
+    if (this.lastPrediction) {
+      const { fairTheirs, predicted, bucket } = this.lastPrediction;
+      const offsetSample = r.humanBid.value - fairTheirs;
+      const errSample = Math.abs(r.humanBid.value - predicted);
+      // EMA: recent rounds matter more than old ones (habits shift mid-game)
+      const a = 0.3;
+      this.offsetEma = (1 - a) * this.offsetEma + a * offsetSample;
+      this.absErrEma = (1 - a) * this.absErrEma + a * errSample;
+      // Pot-size-specific habit learns faster (fewer samples per bucket)
+      const b = 0.5;
+      this.bucketOffset[bucket] = (1 - b) * this.bucketOffset[bucket] + b * offsetSample;
+      this.bucketSamples[bucket] += 1;
+      this.samples += 1;
+      this.lastPrediction = null;
+    }
+
+    // ML bookkeeping about the HUMAN's style
+    if (r.humanBid.value <= 3 && r.prizeValue >= 5) this.mlSacrificeCount += 1;
+    if (r.humanBid.value >= 10) this.mlHighCardRounds.push(this.history.length - 1);
   }
 
-  // ── ML methods ───────────────────────────────────────────────────────────
+  // ═════════════════════════════════════════════════════════════════════
+  //  ML / analytics methods (used by gameStorage + gameSync)
+  // ═════════════════════════════════════════════════════════════════════
 
   classifyStrategy(): string {
     const n = this.history.length;
-    if (n < 3) return "unknown";
-    const archLabel = StrategyArchetype[this.opponentModel.archetype].toLowerCase();
-    if (this.mlSacrificeCount > n * 0.4) return "sacrificer";
-    if (this.mlHighCardRounds > n * 0.5) return "aggressor";
-    return archLabel;
+    if (n < 3) return "ADAPTIVE";
+    const sacrificeFreq = this.mlSacrificeCount / n;
+    if (this.offsetEma > 1.5) return "AGGRESSOR";
+    if (this.offsetEma < -1.5) return "CONSERVATIONIST";
+    if (sacrificeFreq > 0.35) return "CALCULATOR";   // strategic dumper
+    if (this.absErrEma <= 1.2) return "REACTIVE";     // very predictable
+    if (this.absErrEma >= 3) return "CHAOTIC";
+    return "ADAPTIVE";
   }
 
   exportGameRecord(
     playerId: string,
     outcome: "player_win" | "bot_win" | "tie",
     finalBotScore: number,
-    finalPlayerScore: number
+    finalPlayerScore: number,
   ): GameRecord {
-    const avgBidRatio = this.history.length > 0
-      ? this.history.reduce((s, r) => s + r.opponentBid / Math.max(r.prizeValue, 1), 0) / this.history.length
-      : 0.5;
-    const bracketOffset = this.mlBracketOffsets.length > 0
-      ? this.mlBracketOffsets.reduce((s, v) => s + v, 0) / this.mlBracketOffsets.length
-      : 0;
-    const tieFreq = this.history.filter(r => r.result === "tie").length / Math.max(this.history.length, 1);
-    const strategyLabel = this.classifyStrategy();
+    const n = Math.max(this.history.length, 1);
+    const avgBidRatio =
+      this.history.reduce((s, r) => s + r.humanBid / Math.max(r.potValue, 1), 0) / n;
+    const tieFreq = this.history.filter((r) => r.result === "tie").length / n;
 
-    const label = (strategyLabel.toUpperCase() as import("../lib/mlTypes").StrategyLabel) || "CHAOTIC";
     return {
       gameId: crypto.randomUUID(),
       playerId,
@@ -641,84 +344,63 @@ export class BotBrain {
       botVersion: BOT_VERSION,
       rounds: this.history,
       playerProfile: {
-        bracketOffset,
+        bracketOffset: this.offsetEma,
         avgBidToPrizeRatio: avgBidRatio,
         tieFrequency: tieFreq,
-        strategyLabel: label,
-        sacrificeFrequency: this.mlSacrificeCount / Math.max(this.history.length, 1),
-        highCardRounds: this.history.map((_, i) => i).filter(i => this.history[i].humanBid >= 10),
+        strategyLabel: this.classifyStrategy() as StrategyLabel,
+        sacrificeFrequency: this.mlSacrificeCount / n,
+        highCardRounds: this.mlHighCardRounds,
         dominanceResponseMatrix: {},
       },
     };
   }
 
-  // ── Private helpers ───────────────────────────────────────────────────────
+  // ═════════════════════════════════════════════════════════════════════
+  //  Small helpers
+  // ═════════════════════════════════════════════════════════════════════
 
-  private _getPhase(round: number): string {
-    if (round <= 3) return "CALIBRATION";
-    if (round <= 6) return "ESTABLISHMENT";
-    if (round <= 10) return "EXECUTION";
-    return "LOCKDOWN";
+  private notePrize(p: Card) {
+    this.seenPrizes.add(`${p.suit ?? "?"}:${p.rank}`);
   }
 
-  private _getDominance(hand: number[], botScore: number, humanScore: number): DominanceState {
-    const oppRemaining = this.opponentModel.remainingEstimate(BotBrain.ALL_CARDS);
-    const oppMaxEst = oppRemaining.length > 0 ? Math.max(...oppRemaining) : 0;
-    const botHandMax = hand.length > 0 ? Math.max(...hand) : 0;
-    return computeDominance(this.botHighestPlayed, this.oppHighestPlayed, botHandMax, oppMaxEst, botScore - humanScore);
+  // The prize deck holds two of each value 1–13 (hearts + diamonds).
+  // Return the values still hidden in it.
+  private unseenPrizeValues(): number[] {
+    const counts = new Map<number, number>();
+    for (let v = 1; v <= 13; v++) counts.set(v, 2);
+    for (const key of this.seenPrizes) {
+      const rank = key.split(":")[1];
+      const v = RANKS.indexOf(rank) + 1;
+      if (v >= 1 && counts.get(v)! > 0) counts.set(v, counts.get(v)! - 1);
+    }
+    const out: number[] = [];
+    for (const [v, c] of counts) for (let i = 0; i < c; i++) out.push(v);
+    return out;
   }
 
-  private _dominanceBranch(
-    hand: number[], prizeValue: number, dominance: DominanceState,
-    prediction: number, confidence: number, pot: number
-  ): [number, string] {
-    if (dominance === "STRONG_DISADVANTAGE") {
-      if (prizeValue >= 10) return [strategySacrifice(hand, prizeValue, "strong disadvantage")[0], "sacrifice"];
-      if (prizeValue >= 6 && confidence >= 0.6) return [pickExactOrNearest(hand, prediction), "probe"];
-      if (prizeValue < 6 && confidence >= 0.5) return [pickExactOrNearest(hand, prediction), "tie_engineering_disadvantage"];
-      return [strategySacrifice(hand, prizeValue, "low confidence")[0], "sacrifice"];
-    }
-    if (dominance === "SLIGHT_DISADVANTAGE") {
-      if (prizeValue >= 10) return [strategySacrifice(hand, prizeValue, "slight disadvantage")[0], "sacrifice"];
-      if (prizeValue <= 3) return [strategySacrifice(hand, prizeValue, "not worth it")[0], "sacrifice"];
-      if (prizeValue >= 6 && confidence >= 0.65) return [pickExactOrNearest(hand, prediction), "probe"];
-      return [pickExactOrNearest(hand, Math.max(1, prediction - 1)), "cautious_underbid"];
-    }
-    if (dominance === "NEUTRAL") {
-      if (prizeValue <= 3) return [strategySacrifice(hand, prizeValue, "neutral low prize")[0], "sacrifice"];
-      if (prizeValue <= 9) return [strategyThinMarginWin(hand, prizeValue, prediction, confidence)[0], "thin_margin_win"];
-      const target = Math.min(prediction + 2, 13);
-      const winner = pickMinimumBeating(hand, target - 1);
-      if (winner !== null) return [winner, "neutral_high_prize"];
-      return [strategySacrifice(hand, prizeValue, "cannot beat prediction")[0], "sacrifice"];
-    }
-    if (dominance === "SLIGHT_ADVANTAGE") {
-      if (prizeValue <= 3) return [strategySacrifice(hand, prizeValue, "not worth contesting")[0], "sacrifice"];
-      if (prizeValue <= 9) return [strategyThinMarginWin(hand, prizeValue, prediction, confidence)[0], "thin_margin_win"];
-      const w1 = pickMinimumBeating(hand, prediction + 1);
-      if (w1 !== null) return [w1, "advantage_high_prize"];
-      const w2 = pickMinimumBeating(hand, prediction);
-      if (w2 !== null) return [w2, "advantage_tight_win"];
-      return [strategySacrifice(hand, prizeValue, "cannot win at advantage")[0], "sacrifice"];
-    }
-    // STRONG_ADVANTAGE
-    if (prizeValue <= 3) return [pickExactOrNearest(hand, prediction), "tie_engineering_advantage"];
-    if (prizeValue <= 6) {
-      const winner = pickMinimumBeating(hand, prediction);
-      return [winner ?? pickNearest(hand, prediction), "cheap_win_strong_advantage"];
-    }
-    const w1 = pickMinimumBeating(hand, prediction + 1);
-    if (w1 !== null) return [w1, "strong_advantage_decisive_win"];
-    const w2 = pickMinimumBeating(hand, prediction);
-    return [w2 ?? Math.max(...hand), "strong_advantage_fallback"];
+  // n-th highest card in a sorted-ascending hand (n=1 → biggest)
+  private nthHighest(sortedHand: number[], n: number): number {
+    const idx = Math.max(0, sortedHand.length - n);
+    return sortedHand[Math.min(idx, sortedHand.length - 1)];
   }
 
-  private _finalize(value: number, _tactic: string, hand: number[], applyAntiExploit: boolean): Card {
-    let finalValue = hand.includes(value) ? value : pickNearest(hand, value);
-    if (applyAntiExploit && hand.length > 1) {
-      const [ae] = this.antiExploit.apply(finalValue, hand, _tactic, this.opponentModel.isCounteringBot);
-      if (hand.includes(ae)) finalValue = ae;
+  // Cheapest card strictly above a threshold, or null
+  private cheapestAbove(sortedHand: number[], threshold: number): number | null {
+    for (const v of sortedHand) if (v > threshold) return v;
+    return null;
+  }
+
+  // The card in a hand closest to a target value
+  private nearestIn(sortedHand: number[], target: number): number {
+    let best = sortedHand[0];
+    for (const v of sortedHand) {
+      if (Math.abs(v - target) < Math.abs(best - target)) best = v;
     }
-    return this.makeCard(finalValue);
+    return best;
+  }
+
+  private finish(value: number, tactic: string): Card {
+    this.lastTactic = tactic;
+    return makeCard(value);
   }
 }
