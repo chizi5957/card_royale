@@ -129,6 +129,25 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotM
   // the player play twice in one round). Cleared once the server confirms.
   const pendingPlayRef = useRef<{ card: Card; round: number } | null>(null);
 
+  // Multiplayer: round-by-round log (for the local game history) and a
+  // guard so the finished game is saved to storage exactly once
+  const mpRoundsRef = useRef<Map<number, import("../botBrain").RoundRecord>>(new Map());
+  const mpSavedRef = useRef(false);
+  const gameOverRef = useRef(false);
+
+  // Rematch handshake state (multiplayer): who has voted so far
+  const [rematchMine, setRematchMine] = useState(false);
+  const [rematchTheirs, setRematchTheirs] = useState(false);
+
+  // Bot mode: brief "dealing" intro so every game opens with the cards
+  // being split — prize deck to the middle, suits to each player
+  const [dealingIntro, setDealingIntro] = useState(!!isBotMode);
+  useEffect(() => {
+    if (!isBotMode) return;
+    const t = setTimeout(() => setDealingIntro(false), 2200);
+    return () => clearTimeout(t);
+  }, [isBotMode]);
+
   // ── ON GAME START: seed botBrain with player profile + global priors ───────
   useEffect(() => {
     if (!isBotMode) return; // only bot mode uses botBrain
@@ -137,7 +156,7 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotM
         const profilePromise = playerId
           ? Promise.race<import("../../lib/mlTypes").AggregatedPlayerProfile | null>([
               gameStorage.getPlayerProfile(playerId),
-              new Promise<null>(r => setTimeout(() => r(null), 200)),
+              new Promise<null>(r => setTimeout(() => r(null), 800)),
             ])
           : Promise.resolve(null);
         const [profile, priors] = await Promise.all([
@@ -212,7 +231,59 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotM
     setOpponentWonCards(oppWonCards);
 
     setPhase(data.phase === "game_over" ? "reveal" : data.phase);
-    if (data.status === "finished") setGameOver(true);
+
+    // Rematch votes (multiplayer end screen shows who has accepted)
+    const votes = data.rematchVotes ?? {};
+    setRematchMine(!!(playerNumber === 1 ? votes.p1 : votes.p2));
+    setRematchTheirs(!!(playerNumber === 1 ? votes.p2 : votes.p1));
+
+    if (data.status === "finished") {
+      gameOverRef.current = true;
+      setGameOver(true);
+      // Save this game into the local history exactly once
+      if (!mpSavedRef.current && !isBotMode) {
+        mpSavedRef.current = true;
+        const scores = finalScoresRef.current ?? {
+          player: newPlayerScore, opponent: newOpponentScore,
+        };
+        const outcome =
+          scores.player > scores.opponent ? "player_win" as const
+          : scores.player < scores.opponent ? "bot_win" as const
+          : "tie" as const;
+        const rounds = [...mpRoundsRef.current.entries()]
+          .sort((a, b) => a[0] - b[0]).map(([, r]) => r);
+        gameStorage.saveGameRecord({
+          gameId: crypto.randomUUID(),
+          playerId: playerId || "anonymous",
+          timestamp: Date.now(),
+          outcome,
+          finalBotScore: scores.opponent,
+          finalPlayerScore: scores.player,
+          totalRounds: rounds.length,
+          rounds,
+          playerProfile: {
+            bracketOffset: 0, dominanceResponseMatrix: {}, avgBidToPrizeRatio: 0,
+            tieFrequency: 0, sacrificeFrequency: 0, highCardRounds: [],
+            strategyLabel: "ADAPTIVE",
+          },
+          botVersion: "multiplayer-v1",
+        }).catch(() => {});
+      }
+    }
+
+    // Opponent accepted our rematch → server reset the game to round 1.
+    // Clear all the local end-of-game state and play on.
+    if (data.status === "playing" && gameOverRef.current) {
+      gameOverRef.current = false;
+      mpSavedRef.current = false;
+      mpRoundsRef.current = new Map();
+      finalScoresRef.current = null;
+      pendingPlayRef.current = null;
+      setGameOver(false);
+      setSelectedCard(null);
+      setRematchMine(false);
+      setRematchTheirs(false);
+    }
 
     if (data.lastRoundResult) {
       let result: "win" | "lose" | "tie" = "tie";
@@ -220,9 +291,25 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotM
       else if (data.lastRoundResult.winner === 0) result = "tie";
       else result = "lose";
 
+      const myCard = playerNumber === 1 ? data.lastRoundResult.player1Card : data.lastRoundResult.player2Card;
+      const oppCard = playerNumber === 1 ? data.lastRoundResult.player2Card : data.lastRoundResult.player1Card;
+
+      // Log the round for local history (keyed by round so polls don't duplicate)
+      if (data.phase === "reveal" || data.phase === "game_over") {
+        mpRoundsRef.current.set(data.currentRound, {
+          roundNumber: data.currentRound,
+          prizeValue: data.lastRoundResult.prize?.value ?? 0,
+          botBid: oppCard?.value ?? 0,
+          humanBid: myCard?.value ?? 0,
+          result: result === "win" ? "human" : result === "lose" ? "bot" : "tie",
+          potValue: data.lastRoundResult.prize?.value ?? 0,
+          tacticUsed: "",
+        });
+      }
+
       setLastRound({
-        playerCard: playerNumber === 1 ? data.lastRoundResult.player1Card : data.lastRoundResult.player2Card,
-        opponentCard: playerNumber === 1 ? data.lastRoundResult.player2Card : data.lastRoundResult.player1Card,
+        playerCard: myCard,
+        opponentCard: oppCard,
         prize: data.lastRoundResult.prize,
         result,
       });
@@ -392,6 +479,22 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotM
     }
   };
 
+  // Multiplayer rematch: cast our vote; the game restarts once both agree
+  const requestRematchMultiplayer = async () => {
+    if (!gameCode) return;
+    setRematchMine(true); // optimistic — poll confirms
+    try {
+      await apiFetch(`/game/rematch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gameCode, playerNumber }),
+      });
+    } catch (e) {
+      console.error("Rematch error", e);
+      setRematchMine(false);
+    }
+  };
+
   const handlePlayCard = async () => {
     if (!selectedCard || phase !== "select") return;
 
@@ -522,50 +625,93 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotM
     setPhase("select");
   };
 
-  // Gate the game board render until server data is confirmed (multiplayer only)
-  // gameOver must bypass the gate — at game end currentPrize=null and hand is empty
+  // Gate the game board render until server data is confirmed (multiplayer only).
+  // gameOver bypasses the gate, and so does the round-13 reveal (hand is
+  // empty then, but the final reveal must stay visible — not a loading screen).
   const readyToRender =
-    isBotMode ||
-    gameOver ||
-    (serverReady && currentPrize !== null && playerHand.length > 0);
+    (isBotMode && !dealingIntro) ||
+    (!isBotMode && gameOver) ||
+    (!isBotMode && serverReady && currentPrize !== null &&
+      (playerHand.length > 0 || phase === "reveal"));
 
   if (!readyToRender) {
-    // Loading = cards being dealt, not a spinner. Three face-down cards
-    // shuffle in a loop while the server hands us the game state.
+    // The deal, visualised: the deck splits three ways. Red prize cards
+    // stay in the middle (shuffling), spades slide down to YOU, clubs
+    // slide up to the opponent. This is literally how the game starts.
+    const miniCard = (label: string, color: string, border: string): React.CSSProperties => ({
+      width: "56px",
+      height: "78px",
+      borderRadius: "7px",
+      background: "#FDFDFD",
+      border: `2px solid ${border}`,
+      boxShadow: "0 6px 18px rgba(0,0,0,0.45)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: "26px",
+      color,
+      position: "absolute" as const,
+      left: "50%",
+      top: "50%",
+      margin: "-39px 0 0 -28px",
+    });
+    const sideLabel: React.CSSProperties = {
+      fontFamily: "'Goldman Sans', sans-serif",
+      fontWeight: "var(--font-weight-medium)" as any,
+      fontSize: "11px",
+      letterSpacing: "0.14em",
+      textTransform: "uppercase",
+      color: "rgba(255,255,255,0.55)",
+    };
     return (
       <div
         className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden"
-        style={{ background: "var(--game-bg)", gap: "36px" }}
+        style={{ background: "var(--game-bg)", gap: "20px" }}
       >
-        <div className="relative" style={{ width: "160px", height: "110px" }}>
+        <span style={sideLabel}>{isBotMode ? "Bot" : "Opponent"} · ♣ Clubs</span>
+
+        <div className="relative" style={{ width: "300px", height: "340px" }}>
+          {/* Clubs dealt UP to the opponent, one after another */}
           {[0, 1, 2].map((i) => (
             <motion.div
-              key={i}
-              className="absolute"
-              style={{
-                left: "50%",
-                marginLeft: "-32px",
-                width: "64px",
-                height: "90px",
-                borderRadius: "8px",
-                background: "linear-gradient(135deg, #1e1b4b, #312e81)",
-                border: "2px solid rgba(255,196,0,0.6)",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-              animate={{
-                x: [0, i === 0 ? -44 : i === 2 ? 44 : 0, 0],
-                rotate: [0, i === 0 ? -12 : i === 2 ? 12 : 0, 0],
-                zIndex: [i, i, 2 - i],
-              }}
-              transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.12, ease: "easeInOut" }}
+              key={`c${i}`}
+              style={miniCard("♣", "#1E293B", "rgba(125,180,255,0.9)")}
+              initial={{ x: 0, y: 0, opacity: 0 }}
+              animate={{ x: [0, 0, (i - 1) * 66], y: [0, -132, -132], opacity: [0, 1, 1], rotate: [0, 0, (i - 1) * 4] }}
+              transition={{ duration: 1.6, times: [0, 0.55, 1], repeat: Infinity, repeatDelay: 1.4, delay: i * 0.45, ease: "easeOut" }}
             >
-              <span style={{ fontSize: "24px", color: "rgba(255,196,0,0.8)" }}>♠</span>
+              ♣
+            </motion.div>
+          ))}
+
+          {/* Spades dealt DOWN to you */}
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={`s${i}`}
+              style={miniCard("♠", "#1E293B", "rgba(255,196,0,0.9)")}
+              initial={{ x: 0, y: 0, opacity: 0 }}
+              animate={{ x: [0, 0, (i - 1) * 66], y: [0, 132, 132], opacity: [0, 1, 1], rotate: [0, 0, (i - 1) * -4] }}
+              transition={{ duration: 1.6, times: [0, 0.55, 1], repeat: Infinity, repeatDelay: 1.4, delay: 0.22 + i * 0.45, ease: "easeOut" }}
+            >
+              ♠
+            </motion.div>
+          ))}
+
+          {/* The red prize deck stays in the middle, shuffling */}
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={`p${i}`}
+              style={{ ...miniCard("♥", "#D22", "rgba(255,90,90,0.9)"), zIndex: 5 }}
+              animate={{ x: [0, i === 0 ? -26 : i === 2 ? 26 : 0, 0], rotate: [0, (i - 1) * 10, 0] }}
+              transition={{ duration: 1.1, repeat: Infinity, delay: i * 0.14, ease: "easeInOut" }}
+            >
+              {i === 1 ? "♥" : "♦"}
             </motion.div>
           ))}
         </div>
+
+        <span style={sideLabel}>You · ♠ Spades</span>
+
         <motion.p
           animate={{ opacity: [0.5, 1, 0.5] }}
           transition={{ duration: 1.6, repeat: Infinity }}
@@ -578,7 +724,7 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotM
             letterSpacing: "0.12em",
             textShadow:
               "-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B",
-            margin: 0,
+            margin: "8px 0 0",
           }}
         >
           Dealing the cards…
@@ -1379,7 +1525,13 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotM
           opponentScore={finalScoresRef.current?.opponent ?? opponentScore}
           playerNumber={playerNumber}
           onNewGame={onNewGame}
-          onRematch={onRematch}
+          onRematch={isBotMode ? onRematch : requestRematchMultiplayer}
+          rematchStatus={
+            isBotMode ? undefined
+            : rematchMine ? "waiting"
+            : rematchTheirs ? "incoming"
+            : undefined
+          }
           isBotMode={isBotMode}
           playerName={playerName}
         />

@@ -96,14 +96,26 @@ export function NameEntry({ onContinue, initialName = "" }: NameEntryProps) {
                 "-1px -1px 0 #3B3B3B,1px -1px 0 #3B3B3B,-1px 1px 0 #3B3B3B,1px 1px 0 #3B3B3B, 0 2px 6px rgba(0,0,0,0.6)",
             }}
           >
-            The Bidding War
+            GOPS
           </h1>
+          <p
+            style={{
+              fontFamily: "'Goldman Sans', sans-serif",
+              fontSize: "11px",
+              color: "rgba(255,196,0,0.8)",
+              marginTop: "6px",
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+            }}
+          >
+            Game of Pure Strategy
+          </p>
           <p
             style={{
               fontFamily: "'Goldman Sans', sans-serif",
               fontSize: "12px",
               color: "rgba(255,255,255,0.55)",
-              marginTop: "10px",
+              marginTop: "14px",
               letterSpacing: "0.08em",
               textTransform: "uppercase",
             }}

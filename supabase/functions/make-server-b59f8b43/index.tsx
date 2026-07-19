@@ -1,5 +1,5 @@
 // ╔════════════════════════════════════════════════════════════════════╗
-// ║  THE BIDDING WAR — GAME SERVER (Supabase Edge Function)             ║
+// ║  GOPS (GAME OF PURE STRATEGY) — GAME SERVER (Supabase Edge Function)║
 // ║                                                                      ║
 // ║  This is the "referee" for 2-player online games.                   ║
 // ║  Both players' apps talk to this server. It remembers the game      ║
@@ -12,6 +12,7 @@
 // ║    POST /game/join        → second player joins with that code      ║
 // ║    POST /game/play        → a player secretly plays one card        ║
 // ║    POST /game/next-round  → advance after both cards are revealed   ║
+// ║    POST /game/rematch     → vote to restart; resets when both agree ║
 // ║    GET  /game/:code       → read the current game state (polling)   ║
 // ╚════════════════════════════════════════════════════════════════════╝
 import { Hono } from "npm:hono";
@@ -99,6 +100,28 @@ interface GameState {
   createdAt: number;
   // Version counter for optimistic locking (see atomicUpdate below)
   version?: number;
+  // Rematch handshake: each player votes; when both have voted the game resets
+  rematchVotes?: { p1?: boolean; p2?: boolean };
+}
+
+// Build a fresh round-1 state, keeping the same players and game code
+function freshGameFields() {
+  const pd = prizeDeck();
+  return {
+    currentRound: 1,
+    prizeDeck: pd,
+    currentPrize: pd.shift() || null,
+    carriedOverPrizes: [] as Card[],
+    player1Hand: playerDeck(1),
+    player2Hand: playerDeck(2),
+    player1Card: null,
+    player2Card: null,
+    player1WonCards: [] as Card[],
+    player2WonCards: [] as Card[],
+    phase: "select" as const,
+    lastRoundResult: null,
+    rematchVotes: {},
+  };
 }
 
 // ── Atomic update helper ─────────────────────────────────────
@@ -356,6 +379,39 @@ app.post(`${PREFIX}/game/next-round`, async (c) => {
     return c.json({ success: true });
   } catch (err) {
     console.log("Error in /game/next-round:", err);
+    return c.json({ error: String(err) }, 500);
+  }
+});
+
+// Rematch — both players must opt in, then the game resets in place.
+// Each client polls /game/:code, sees rematchVotes, and shows the state
+// ("waiting for opponent" / "opponent wants a rematch") on the end screen.
+app.post(`${PREFIX}/game/rematch`, async (c) => {
+  try {
+    const { gameCode, playerNumber } = await c.req.json();
+    if (!gameCode || !playerNumber)
+      return c.json({ error: "Missing required fields" }, 400);
+
+    const result = await atomicUpdate(`game_${gameCode}`, (gs) => {
+      // Already restarted (opponent's vote landed the reset first) — fine
+      if (gs.status === "playing") return;
+      if (gs.status !== "finished") return { error: "Game not finished" };
+
+      const votes = gs.rematchVotes ?? {};
+      if (playerNumber === 1) votes.p1 = true;
+      else votes.p2 = true;
+      gs.rematchVotes = votes;
+
+      if (votes.p1 && votes.p2) {
+        Object.assign(gs, freshGameFields());
+        gs.status = "playing";
+      }
+    });
+
+    if (result.error) return c.json({ error: result.error }, result.status as any);
+    return c.json({ success: true });
+  } catch (err) {
+    console.log("Error in /game/rematch:", err);
     return c.json({ error: String(err) }, 500);
   }
 });

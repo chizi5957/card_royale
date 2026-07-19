@@ -182,6 +182,7 @@ export default function App() {
     ) : currentScreen === "home" ? (
       <GameLobby
         playerName={playerName}
+        playerId={playerId}
         onEditName={handleEditName}
         onCreateGame={handleCreateGame}
         onJoinGame={handleJoinGame}

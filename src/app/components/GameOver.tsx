@@ -12,7 +12,10 @@ interface GameOverProps {
   opponentScore: number;
   playerNumber: 1 | 2;
   onNewGame: () => void;
-  onRematch?: () => void;   // present only in bot mode
+  onRematch?: () => void;
+  // Multiplayer rematch handshake: "waiting" = we accepted, opponent hasn't;
+  // "incoming" = opponent wants a rematch and is waiting on us
+  rematchStatus?: "waiting" | "incoming";
   isBotMode?: boolean;
   playerName?: string;
 }
@@ -87,6 +90,7 @@ export function GameOver({
   playerNumber,
   onNewGame,
   onRematch,
+  rematchStatus,
   isBotMode,
   playerName,
 }: GameOverProps) {
@@ -257,11 +261,24 @@ export function GameOver({
           className="w-full flex flex-col"
           style={{ gap: "12px" }}
         >
-          {onRematch && (
+          {onRematch && rematchStatus === "waiting" ? (
+            <FancyButton variant="primary" width="100%" height="58px" fontSize="15px" disabled>
+              ⏳ Waiting for opponent…
+            </FancyButton>
+          ) : onRematch && rematchStatus === "incoming" ? (
+            <motion.div
+              animate={{ scale: [1, 1.03, 1] }}
+              transition={{ repeat: Infinity, duration: 1 }}
+            >
+              <FancyButton onClick={onRematch} variant="primary" width="100%" height="58px" fontSize="15px">
+                🔥 Opponent wants a rematch!
+              </FancyButton>
+            </motion.div>
+          ) : onRematch ? (
             <FancyButton onClick={onRematch} variant="primary" width="100%" height="58px" fontSize="17px">
               ⚡ Rematch
             </FancyButton>
-          )}
+          ) : null}
           <FancyButton
             onClick={onNewGame}
             variant={onRematch ? "secondary" : "primary"}

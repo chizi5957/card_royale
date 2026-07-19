@@ -6,14 +6,17 @@
 // ║  inline. No separate screens, no wall of options.                   ║
 // ║  Greets the player by their saved name ("not you?" to change it).   ║
 // ╚════════════════════════════════════════════════════════════════════╝
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { FancyButton } from "./FancyButton";
 import { HowToPlay } from "./HowToPlay";
 import { DatabaseSetupModal } from "./DatabaseSetupModal";
+import * as gameStorage from "../../lib/gameStorage";
+import type { PlayerStats } from "../../lib/gameStorage";
 
 interface GameLobbyProps {
   playerName: string;
+  playerId?: string;
   onEditName: () => void;
   onCreateGame: () => void;
   onJoinGame: (code: string) => void;
@@ -34,6 +37,7 @@ const stagger = (i: number) => ({
 
 export function GameLobby({
   playerName,
+  playerId,
   onEditName,
   onCreateGame,
   onJoinGame,
@@ -46,6 +50,17 @@ export function GameLobby({
   const [gameCode, setGameCode] = useState("");
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [showDatabaseSetup, setShowDatabaseSetup] = useState(false);
+
+  // Lifetime record for this browser — proof the game remembers you
+  const [stats, setStats] = useState<PlayerStats | null>(null);
+  useEffect(() => {
+    if (!playerId) return;
+    let cancelled = false;
+    gameStorage.getPlayerStats(playerId).then((s) => {
+      if (!cancelled && s.gamesPlayed > 0) setStats(s);
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [playerId]);
 
   const isDatabaseError =
     error &&
@@ -121,6 +136,40 @@ export function GameLobby({
             >
               not you?
             </button>
+
+            {/* Lifetime record — stored in this browser */}
+            {stats && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                style={{
+                  display: "inline-flex",
+                  gap: "14px",
+                  marginTop: "12px",
+                  padding: "8px 18px",
+                  background: "rgba(8, 6, 28, 0.4)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "20px",
+                }}
+              >
+                {[
+                  { n: stats.gamesPlayed, label: "Games" },
+                  { n: stats.wins, label: "Wins" },
+                  { n: stats.losses, label: "Losses" },
+                ].map((s) => (
+                  <span key={s.label} style={{ fontFamily: "'Goldman Sans', sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.55)", letterSpacing: "0.06em" }}>
+                    <strong style={{ color: "#FFC400", fontSize: "13px" }}>{s.n}</strong>{" "}
+                    {s.label.toUpperCase()}
+                  </span>
+                ))}
+              </motion.div>
+            )}
+            {stats && stats.botGames >= 3 && (
+              <p style={{ fontFamily: "'Goldman Sans', sans-serif", fontSize: "9px", color: "rgba(255,196,0,0.55)", letterSpacing: "0.12em", textTransform: "uppercase", marginTop: "8px" }}>
+                ⚠ The bot has studied your last {stats.botGames} games
+              </p>
+            )}
           </motion.div>
 
           {/* Error banner */}

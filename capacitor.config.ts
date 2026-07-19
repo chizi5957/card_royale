@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.cardroyale.thebiddingwar",
-  appName: "The Bidding War",
+  appName: "GOPS",
   webDir: "dist",
   plugins: {
     SplashScreen: {

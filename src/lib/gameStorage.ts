@@ -68,9 +68,51 @@ export async function saveGameRecord(record: GameRecord): Promise<void> {
   try {
     const store = txStore("games", "readwrite");
     if (store) await idbPut(store, record);
-    await updateAggregatedProfile(record);
+    // Friend games are stored for history/stats, but only bot games feed
+    // the opponent-model profile (they describe how you play vs the bot)
+    if (!record.botVersion.startsWith("multiplayer")) {
+      await updateAggregatedProfile(record);
+    }
   } catch {
     // fail silently
+  }
+}
+
+export interface PlayerStats {
+  gamesPlayed: number;
+  wins: number;
+  losses: number;
+  ties: number;
+  botGames: number;
+  friendGames: number;
+}
+
+// Roll up every stored game for this player — powers the Home screen stats
+export async function getPlayerStats(playerId: string): Promise<PlayerStats> {
+  const empty: PlayerStats = { gamesPlayed: 0, wins: 0, losses: 0, ties: 0, botGames: 0, friendGames: 0 };
+  try {
+    const store = txStore("games", "readonly");
+    if (!store) return empty;
+    return await new Promise<PlayerStats>((resolve) => {
+      const stats = { ...empty };
+      const index = store.index("byPlayerId");
+      const req = index.openCursor(IDBKeyRange.only(playerId));
+      req.onsuccess = () => {
+        const cursor = req.result;
+        if (!cursor) { resolve(stats); return; }
+        const g = cursor.value as GameRecord;
+        stats.gamesPlayed++;
+        if (g.outcome === "player_win") stats.wins++;
+        else if (g.outcome === "bot_win") stats.losses++;
+        else stats.ties++;
+        if (g.botVersion.startsWith("multiplayer")) stats.friendGames++;
+        else stats.botGames++;
+        cursor.continue();
+      };
+      req.onerror = () => resolve(stats);
+    });
+  } catch {
+    return empty;
   }
 }
 
