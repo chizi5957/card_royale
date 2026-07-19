@@ -39,6 +39,7 @@ interface GameBoardProps {
   gameCode: string;
   playerNumber: 1 | 2;
   onNewGame: () => void;
+  onRematch?: () => void;  // bot mode only — instant new game
   isBotMode?: boolean;
   playerName?: string;
   playerId?: string;
@@ -81,7 +82,7 @@ function generatePrizeDeck(): Card[] {
 
 type GamePhase = "select" | "waiting" | "reveal" | "nextRound" | "game_over";
 
-export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, playerName, playerId }: GameBoardProps) {
+export function GameBoard({ gameCode, playerNumber, onNewGame, onRematch, isBotMode, playerName, playerId }: GameBoardProps) {
   const [currentRound, setCurrentRound] = useState(1);
   const [phase, setPhase] = useState<GamePhase>("select");
 
@@ -529,55 +530,59 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
     (serverReady && currentPrize !== null && playerHand.length > 0);
 
   if (!readyToRender) {
+    // Loading = cards being dealt, not a spinner. Three face-down cards
+    // shuffle in a loop while the server hands us the game state.
     return (
       <div
         className="min-h-screen w-full flex flex-col items-center justify-center relative overflow-hidden"
-        style={{ background: "var(--game-bg)" }}
+        style={{ background: "var(--game-bg)", gap: "36px" }}
       >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative box-border flex flex-col items-center overflow-hidden"
+        <div className="relative" style={{ width: "160px", height: "110px" }}>
+          {[0, 1, 2].map((i) => (
+            <motion.div
+              key={i}
+              className="absolute"
+              style={{
+                left: "50%",
+                marginLeft: "-32px",
+                width: "64px",
+                height: "90px",
+                borderRadius: "8px",
+                background: "linear-gradient(135deg, #1e1b4b, #312e81)",
+                border: "2px solid rgba(255,196,0,0.6)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+              animate={{
+                x: [0, i === 0 ? -44 : i === 2 ? 44 : 0, 0],
+                rotate: [0, i === 0 ? -12 : i === 2 ? 12 : 0, 0],
+                zIndex: [i, i, 2 - i],
+              }}
+              transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.12, ease: "easeInOut" }}
+            >
+              <span style={{ fontSize: "24px", color: "rgba(255,196,0,0.8)" }}>♠</span>
+            </motion.div>
+          ))}
+        </div>
+        <motion.p
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.6, repeat: Infinity }}
+          className="uppercase text-center"
           style={{
-            width: "448px",
-            padding: "60px 35px",
-            gap: "24px",
-            background: "var(--game-card-bg)",
-            border: "3px solid var(--game-card-border)",
-            boxShadow: "var(--elevation-sm)",
-            borderRadius: "var(--game-card-radius)",
+            color: "var(--foreground)",
+            fontSize: "14px",
+            fontFamily: "'Goldman Sans', sans-serif",
+            fontWeight: "var(--font-weight-black)" as any,
+            letterSpacing: "0.12em",
+            textShadow:
+              "-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B",
+            margin: 0,
           }}
         >
-          {/* Spinner */}
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "50%",
-              borderTop: "3px solid var(--status-waiting)",
-              borderRight: "3px solid transparent",
-              borderBottom: "3px solid var(--status-waiting)",
-              borderLeft: "3px solid transparent",
-            }}
-          />
-          <h2
-            className="uppercase tracking-wide text-center"
-            style={{
-              color: "var(--foreground)",
-              fontSize: "var(--text-h3)",
-              fontFamily: "'Goldman Sans', sans-serif",
-              fontWeight: "var(--font-weight-black)" as any,
-              textShadow:
-                "-1px -1px 0 #3B3B3B, 1px -1px 0 #3B3B3B, -1px 1px 0 #3B3B3B, 1px 1px 0 #3B3B3B, 0px 2px 4px rgba(0,0,0,0.5)",
-              margin: 0,
-            }}
-          >
-            Setting Up The Battlefield...
-          </h2>
-        </motion.div>
+          Dealing the cards…
+        </motion.p>
       </div>
     );
   }
@@ -1367,13 +1372,14 @@ export function GameBoard({ gameCode, playerNumber, onNewGame, isBotMode, player
         </div>
       </div>
 
-      {/* Game Over Modal */}
+      {/* Game Over — full-screen result */}
       {gameOver && (
         <GameOver
           playerScore={finalScoresRef.current?.player ?? playerScore}
           opponentScore={finalScoresRef.current?.opponent ?? opponentScore}
           playerNumber={playerNumber}
           onNewGame={onNewGame}
+          onRematch={onRematch}
           isBotMode={isBotMode}
           playerName={playerName}
         />

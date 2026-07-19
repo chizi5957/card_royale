@@ -267,6 +267,27 @@ export class BotBrain {
       }
     }
 
+    // ── 5. EFFICIENT LOCK — never overpay for certainty ───────────────
+    // Card counting: if we hold a card the player can no longer beat
+    // (their higher cards are already spent), that card is enough.
+    // Worst case it TIES — and a tie carries the pot to the next round,
+    // where we still hold our even bigger cards. Example: their King is
+    // gone, we hold Q and K → play Q, keep the K for a bigger fight.
+    // (Skipped when contesting is not the plan — dumps stay cheap.)
+    if (
+      roundsLeft > 1 &&
+      theirHand.length > 0 &&
+      tactic !== "sacrifice" &&
+      tactic !== "sacrifice_snipe"
+    ) {
+      const theirMax = theirHand[theirHand.length - 1];
+      const cannotLose = this.cheapestAtLeast(myHand, theirMax);
+      if (cannotLose !== null && choice > cannotLose) {
+        choice = cannotLose;
+        tactic = "efficient_lock";
+      }
+    }
+
     return this.finish(choice, tactic);
   }
 
@@ -387,6 +408,12 @@ export class BotBrain {
   // Cheapest card strictly above a threshold, or null
   private cheapestAbove(sortedHand: number[], threshold: number): number | null {
     for (const v of sortedHand) if (v > threshold) return v;
+    return null;
+  }
+
+  // Cheapest card at-or-above a threshold ("cannot lose" card), or null
+  private cheapestAtLeast(sortedHand: number[], threshold: number): number | null {
+    for (const v of sortedHand) if (v >= threshold) return v;
     return null;
   }
 
